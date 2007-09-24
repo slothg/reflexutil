@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window:SizeableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:window="com.adobe.ColdFusion.components.*"
+	layout="absolute" width="400" height="400"
+	showCloseButton="true" close="hide()">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.core.IUIComponent;
+			import mx.controls.Alert;
+			import mx.collections.SortField;
+			import mx.collections.Sort;
+			//TODO: align imports when finished
+			import net.kandov.reflex.types.PropertyInfo;
+			import net.kandov.reflex.utils.ComponentUtil;
+			import net.kandov.reflex.types.ComponentInfo;
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.core.Application;
+			import mx.managers.PopUpManager;
+			
+			private var _componentsInfos:ArrayCollection = new ArrayCollection();
+			private var _selectedComponentInfo:ComponentInfo;
+			private var _propertiesInfos:ArrayCollection;
+			private var alreadyShowed:Boolean;
+			
+			//--------------------------------------------------------------------------
+			// interface
+			//--------------------------------------------------------------------------
+			
+			[Bindable(event="showingChanged")]
+			public function get showing():Boolean {
+				return isPopUp;
+			}
+			
+			public function show():void {
+				if (!showing) {
+					PopUpManager.addPopUp(this, Application(Application.application));
+					dispatchEvent(new Event("showingChanged"));
+					
+					if ((x == -1 || y == -1) && !alreadyShowed) {
+						PopUpManager.centerPopUp(this);
+						alreadyShowed = true;
+					}
+				}
+			}
+			
+			public function hide():void {
+				if (showing) {
+					PopUpManager.removePopUp(this);
+					dispatchEvent(new Event("showingChanged"));
+				}
+			}
+			
+			public function addComponent(component:IUIComponent):void {
+				var newComponentInfo:ComponentInfo = ComponentUtil.generateComponentInfo(component);
+				
+				var containsComponentInfo:Boolean = false;
+				for each (var componentInfo:ComponentInfo in componentsInfos) {
+					if (componentInfo.equals(newComponentInfo)) {
+						containsComponentInfo = true;
+						break;
+					}
+				}
+				
+				if (containsComponentInfo) {
+					//TODO: replace it with selecting the component
+					Alert.show("Component is already inspected.");
+				} else {
+					componentsInfos.addItem(newComponentInfo);
+				}
+			}
+			
+			[Bindable(event="selectedComponentInfoChanged")]
+			public function get selectedComponentInfo():ComponentInfo {
+				return _selectedComponentInfo;
+			}
+			
+			public function set selectedComponentInfo(value:ComponentInfo):void {
+				if (_selectedComponentInfo != value) {
+					_selectedComponentInfo = value;
+					dispatchEvent(new Event("selectedComponentInfoChanged"));
+					
+					if (value) {
+						propertiesInfos = ComponentUtil.generatePropertiesInfos(value.component);
+					} else {
+						propertiesInfos = null;
+					}
+				}
+			}
+			
+			//--------------------------------------------------------------------------
+			// private
+			//--------------------------------------------------------------------------
+			
+			[Bindable(event="componentsInfosChanged")]
+			private function get componentsInfos():ArrayCollection {
+				return _componentsInfos;
+			}
+			
+			private function set componentsInfos(value:ArrayCollection):void {
+				if (_componentsInfos != value) {
+					_componentsInfos = value;
+					dispatchEvent(new Event("componentsInfosChanged"));
+				}
+			}
+			
+			[Bindable(event="propertiesInfosChanged")]
+			private function get propertiesInfos():ArrayCollection {
+				return _propertiesInfos;
+			}
+			
+			private function set propertiesInfos(value:ArrayCollection):void {
+				if (_propertiesInfos != value) {
+					if (value) {
+						var sort:Sort = new Sort();
+						sort.fields = [new SortField("name", true)];
+						value.sort = new Sort();
+						value.refresh();
+					}
+					
+					_propertiesInfos = value;
+					dispatchEvent(new Event("propertiesInfosChanged"));
+				}
+			}
+			
+			private function filterPropertiesInfos(item:Object):Boolean {
+				var propertyName:String = PropertyInfo(item).name.toLocaleLowerCase();
+				var filterString:String = txtFilter.text.toLowerCase();
+				
+				return propertyName.indexOf(filterString) == -1 ? false : true;
+			}
+			
+			//--------------------------------------------------------------------------
+			// handlers
+			//--------------------------------------------------------------------------
+			
+			private function treeComponentsInfosChangeHandler(event:ListEvent):void {
+				selectedComponentInfo = ComponentInfo(event.itemRenderer.data);
+			}
+			
+			private function treeComponentsInfosKeyDownHandler(event:KeyboardEvent):void {
+				if (event.keyCode == Keyboard.DELETE) {
+					var index:int = componentsInfos.getItemIndex(treeComponentsInfos.selectedItem);
+					if (index != -1) {
+						componentsInfos.removeItemAt(index);
+						selectedComponentInfo = null;
+					}
+				}
+			}
+			
+			private function treeComponentsInfosItemRollOverHandler(event:ListEvent):void {
+				//Application.application.txtOutput.text = treeComponentsInfos.dataProvider(event.rowIndex);
+				Application.application.txtOutput.text = event.target;
+				/* var componentInfo:ComponentInfo = ComponentInfo(treeComponentsInfos.getChildAt(event.rowIndex));
+				Application.application.txtOutput.text = componentInfo; */
+				
+				//TODO: consider saving in ComponentInfo object the absolute screen rect position and use it here
+				// like hover.screen = componentInfo.screen...
+				//TODO: maybe use the getRect() function
+				/* var absolutePosition:Point = ComponentUtil.getAbsolutePosition(component);
+				canvasHover.width = component.width;
+				canvasHover.height = component.height;
+				canvasHover.x = absolutePosition.x;
+				canvasHover.y = absolutePosition.y;
+				
+				//TODO: add label/toolTip with uid and typeof
+				canvasHover.toolTip = component.uid; */
+			}
+			
+			private function treeComponentsInfosItemRollOutHandler():void {
+				//TODO: make hover invisible and not included in layout
+				Application.application.txtOutput.text = null;
+			}
+			
+			private function txtFilterChangeHandler():void {
+				propertiesInfos.filterFunction = filterPropertiesInfos;
+				propertiesInfos.refresh();
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%">
+		<mx:VDividedBox width="100%" height="100%">
+			<mx:Tree id="treeComponentsInfos" width="100%" height="30%" dataProvider="{componentsInfos}"
+				change="treeComponentsInfosChangeHandler(event)" keyDown="treeComponentsInfosKeyDownHandler(event)"
+				itemRollOver="treeComponentsInfosItemRollOverHandler(event)"
+				itemRollOut="treeComponentsInfosItemRollOutHandler()"/>
+			<mx:VBox width="100%" height="70%">
+				<mx:TextInput id="txtFilter" width="100%" change="txtFilterChangeHandler()"/>
+				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Property Name" dataField="name"/>
+						<mx:DataGridColumn headerText="Property Value" dataField="value"
+							itemRenderer="{new ClassFactory(PropertyValueItem)}">
+						</mx:DataGridColumn>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+		</mx:VDividedBox>
+	</mx:VBox>
+	
+</window:SizeableTitleWindow>

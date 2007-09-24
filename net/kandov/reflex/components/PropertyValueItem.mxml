@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	width="100%" height="100%" dataChange="dataChangeHandler()"
+	backgroundColor="{propertyInfo.bindable ? 44546543 : 16777215}">
+	
+	<mx:Script>
+		<![CDATA[
+			//TODO: align imports when finished
+			import mx.states.State;
+			import net.kandov.reflex.types.PropertyInfo;
+			
+			public function get value():Object {
+				return propertyInfo.value;
+			}
+			
+			public function set value(value:Object):void {
+				try {
+					propertyInfo.component[propertyInfo.name] = value;
+				} catch (error:Error) {
+					//TODO: what to do here?
+					//Alert.show("could not set the inserted value.");
+				}
+			}
+			
+			[Bindable(event="dataChange")]
+			private function get propertyInfo():PropertyInfo {
+				return PropertyInfo(data);
+			}
+			
+			private function dataChangeHandler():void {
+				if (propertyInfo) {
+					if (propertyInfo.access == "readwrite") {
+						for each (var state:State in states) {
+							if (state.name == propertyInfo.type) {
+								currentState = state.name;
+								break;
+							}
+						}
+					} else {
+						currentState = propertyInfo.access;
+					}
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<!-- TODO: add support to set nullable types to null -->
+	<mx:states>
+		<mx:State name="readonly">
+			<mx:AddChild>
+				<mx:Label width="100%" text="{propertyInfo.value}"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="writeonly">
+			<mx:AddChild>
+				<mx:Label width="100%" text="[no read access]" color="#ff0000"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="Array">
+			<mx:AddChild>
+				<mx:TextInput id="txtArrayValue" width="100%" text="{propertyInfo.value}"
+					change="value = txtArrayValue.text"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="Boolean">
+			<mx:AddChild>
+				<mx:ComboBox id="cmbBooleanValue" width="100%" height="100%"
+					selectedIndex="{propertyInfo.value ? 0 : 1}"
+					change="value = cmbBooleanValue.selectedIndex == 0 ? true : false"
+					dataProvider="{[true, false]}"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="Color">
+			<mx:AddChild>
+				<mx:Label width="100%" text="{propertyInfo.value}"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="FontName">
+			<mx:AddChild>
+				<mx:Label width="100%" text="{propertyInfo.value}"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="List">
+			<mx:AddChild>
+				<mx:Label width="100%" text="{propertyInfo.value}"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="Number">
+			<mx:AddChild>
+				<mx:TextInput id="txtNumberValue" width="100%" text="{propertyInfo.value}"
+					change="value = txtNumberValue.text"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="int"> <!-- TODO: represent with a NumericStepper -->
+			<mx:AddChild>
+				<mx:TextInput id="txtIntValue" width="100%" text="{propertyInfo.value}"
+					change="value = txtIntValue.text"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="Object">
+			<mx:AddChild>
+				<mx:Label width="100%" text="{propertyInfo.value}"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="String">
+			<mx:AddChild>
+				<mx:TextInput id="txtStringValue" width="100%" text="{propertyInfo.value}"
+					change="value = txtStringValue.text"/>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+</mx:Canvas>
