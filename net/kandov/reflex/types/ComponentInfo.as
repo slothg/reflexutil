@@ -2,7 +2,7 @@ package net.kandov.reflex.types {
 	
 	import flash.events.EventDispatcher;
 	
-	import mx.core.IUIComponent;
+	import mx.core.UIComponent;
 	
 	import net.kandov.reflex.utils.ClassUtil;
 	import net.kandov.reflex.utils.IComparable;
@@ -12,11 +12,12 @@ package net.kandov.reflex.types {
 	extends EventDispatcher
 	implements IComparable {
 		
-		public var component:IUIComponent;
+		public var component:UIComponent;
 		public var label:String;
+		public var parent:ComponentInfo;
 		public var children:Array;
 		
-		public function ComponentInfo(component:IUIComponent, label:String, children:Array = null) {
+		public function ComponentInfo(component:UIComponent, label:String) {
 			super();
 			
 			this.component = component;
@@ -28,13 +29,15 @@ package net.kandov.reflex.types {
 			return "[" + ClassUtil.getClassName(this) + " " +
 				"component='" + component + "' " +
 				"label='" + label + "' " +
+				"parent='" + parent + "' " +
 				"children='" + children + "']";
 		}
 		
 		public function equals(anotherObject:Object):Boolean {
 			var anotherComponentInfo:ComponentInfo = anotherObject as ComponentInfo;
 			if (anotherComponentInfo) {
-				return anotherComponentInfo.component == component;
+				return anotherComponentInfo.component == component &&
+					anotherComponentInfo.parent == parent;
 			}
 			return false;
 		}

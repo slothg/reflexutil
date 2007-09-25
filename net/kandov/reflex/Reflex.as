@@ -6,7 +6,7 @@ package net.kandov.reflex {
 	
 	import mx.core.Application;
 	import mx.core.IMXMLObject;
-	import mx.core.IUIComponent;
+	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	import mx.utils.UIDUtil;
 	
@@ -105,10 +105,12 @@ package net.kandov.reflex {
 		//--------------------------------------------------------------------------
 		
 		private function applicationCompleteHandler(event:FlexEvent):void {
-			application.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT, applicationContextMenuSelect);
+			application.removeEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
+			application.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
+				applicationContextMenuSelectHandler);
 		}
 		
-		private function applicationContextMenuSelect(event:ContextMenuEvent):void {
+		private function applicationContextMenuSelectHandler(event:ContextMenuEvent):void {
 			var customItems:Array = application.contextMenu.customItems;
 			
 			var menuItemIndex:int;
@@ -123,25 +125,27 @@ package net.kandov.reflex {
 			var menuItem:ContextMenuItem;
 			
 			menuItem = new ContextMenuItem("Open Reflex Window", true);
-			menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, openReflexWindowMenuItemSelect);
+			menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
+				openReflexWindowMenuItemSelectHandler, false, 0, true);
 			reflexContextMenuItems[menuItem] = null;
 			customItems.push(menuItem);
 			
 			var components:Array = ComponentUtil.getComponentsUnderMouse(application);
-			for each (var component:IUIComponent in components) {
-				menuItem = new ContextMenuItem("Inspect [" + ComponentUtil.getComponentUID(component) + "]");
-				menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, inspectComponentMenuItemSelect);
+			for each (var component:UIComponent in components) {
+				menuItem = new ContextMenuItem("Inspect [" + ComponentUtil.getUID(component) + "]");
+				menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
+					inspectComponentMenuItemSelectHandler, false, 0, true);
 				reflexContextMenuItems[menuItem] = component;
 				customItems.push(menuItem);
 			}
 		}
 		
-		private function openReflexWindowMenuItemSelect(event:ContextMenuEvent):void {
+		private function openReflexWindowMenuItemSelectHandler(event:ContextMenuEvent):void {
 			reflexWindow.show();
 		}
 		
-		private function inspectComponentMenuItemSelect(event:ContextMenuEvent):void {
-			var component:IUIComponent = reflexContextMenuItems[event.target];
+		private function inspectComponentMenuItemSelectHandler(event:ContextMenuEvent):void {
+			var component:UIComponent = reflexContextMenuItems[event.target];
 			reflexWindow.addComponent(component);
 			reflexWindow.show();
 		}

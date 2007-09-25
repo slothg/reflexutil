@@ -2,7 +2,7 @@ package net.kandov.reflex.types {
 	
 	import flash.events.EventDispatcher;
 	
-	import mx.core.IUIComponent;
+	import mx.core.UIComponent;
 	
 	import net.kandov.reflex.utils.ClassUtil;
 	import net.kandov.reflex.utils.IComparable;
@@ -12,14 +12,14 @@ package net.kandov.reflex.types {
 	extends EventDispatcher
 	implements IComparable {
 		
-		public var component:IUIComponent;
+		public var component:UIComponent;
 		public var name:String;
 		public var type:String;
 		public var access:String;
 		public var bindable:Boolean;
 		public var value:Object;
 		
-		public function PropertyInfo(component:IUIComponent, name:String, type:String, access:String) {
+		public function PropertyInfo(component:UIComponent, name:String, type:String, access:String) {
 			super();
 			
 			this.component = component;

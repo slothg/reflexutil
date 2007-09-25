@@ -10,7 +10,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.core.Application;
-			import mx.core.IUIComponent;
+			import mx.core.UIComponent;
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.managers.SystemManager;
@@ -22,7 +22,7 @@
 			private var _componentsInfos:ArrayCollection = new ArrayCollection();
 			private var _treeComponentsInfosContextMenu:ContextMenu = new ContextMenu();
 			private var _selectedComponentInfo:ComponentInfo;
-			private var _rolledOverComponentInfo:ComponentInfo;
+			private var _hoveredComponentInfo:ComponentInfo;
 			private var _propertiesInfos:ArrayCollection;
 			private var alreadyShowed:Boolean;
 			private var componentHover:ComponentHover = new ComponentHover();
@@ -67,7 +67,7 @@
 				}
 			}
 			
-			public function addComponent(component:IUIComponent):void {
+			public function addComponent(component:UIComponent):void {
 				var newComponentInfo:ComponentInfo = ComponentUtil.generateComponentInfo(component);
 				
 				var containsComponentInfo:Boolean = false;
@@ -118,26 +118,26 @@
 			
 			private function set selectedComponentInfo(value:ComponentInfo):void {
 				if (_selectedComponentInfo != value) {
-					_selectedComponentInfo = value;
-					dispatchEvent(new Event("selectedComponentInfoChanged"));
-					
 					if (value) {
 						treeComponentsInfos.selectedItem = value;
 						propertiesInfos = ComponentUtil.generatePropertiesInfos(value.component);
 					} else {
 						propertiesInfos = null;
 					}
+					
+					_selectedComponentInfo = value;
+					dispatchEvent(new Event("selectedComponentInfoChanged"));
 				}
 			}
 			
-			[Bindable(event="rolledOverComponentInfoChanged")]
-			private function get rolledOverComponentInfo():ComponentInfo {
-				return _rolledOverComponentInfo;
+			[Bindable(event="hoveredComponentInfoChanged")]
+			private function get hoveredComponentInfo():ComponentInfo {
+				return _hoveredComponentInfo;
 			}
 			
-			private function set rolledOverComponentInfo(value:ComponentInfo):void {
-				if (_rolledOverComponentInfo != value) {
-					if (_rolledOverComponentInfo) {
+			private function set hoveredComponentInfo(value:ComponentInfo):void {
+				if (_hoveredComponentInfo != value) {
+					if (_hoveredComponentInfo) {
 						componentHover.hide();
 					}
 					
@@ -145,8 +145,8 @@
 						componentHover.show(value.component);
 					}
 					
-					_rolledOverComponentInfo = value;
-					dispatchEvent(new Event("rolledOverComponentInfoChanged"));
+					_hoveredComponentInfo = value;
+					dispatchEvent(new Event("hoveredComponentInfoChanged"));
 				}
 			}
 			
@@ -177,8 +177,9 @@
 			}
 			
 			private function removeComponentInfo(componentInfo:ComponentInfo):void {
-				//TODO: remove the root holder component info node.. seek for it
-				var index:int = componentsInfos.getItemIndex(componentInfo);
+				//FIXME: sometimes the first componentInfo item can't be removes, especially with contextMenu
+				var rootComponentInfo:ComponentInfo = ComponentUtil.getRootComponentInfo(componentInfo);
+				var index:int = componentsInfos.getItemIndex(rootComponentInfo);
 				if (index != -1) {
 					componentsInfos.removeItemAt(index);
 					
@@ -208,24 +209,26 @@
 				
 				treeComponentsInfosContextMenu.hideBuiltInItems();
 				treeComponentsInfosContextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
-					treeComponentsInfosContextMenuSelectHandler);
+					treeComponentsInfosContextMenuSelectHandler, false, 0, true);
 			}
 			
 			private function treeComponentsInfosContextMenuSelectHandler(event:ContextMenuEvent):void {
 				treeComponentsInfosContextMenu.customItems = new Array();
-				if (rolledOverComponentInfo) {
-					selectedComponentInfo = rolledOverComponentInfo;
+				if (hoveredComponentInfo) {
+					selectedComponentInfo = hoveredComponentInfo;
 					
-					var removeMenuItem:ContextMenuItem = new ContextMenuItem("Remove");
-					removeMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, removeMenuItemSelect);
+					var rootComponentInfo:ComponentInfo = ComponentUtil.getRootComponentInfo(hoveredComponentInfo);
+					var removeMenuItem:ContextMenuItem = new ContextMenuItem(
+						"Remove [" + ComponentUtil.getUID(rootComponentInfo.component) + "]");
+					removeMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
+						removeMenuItemSelectHandler, false, 0, true);
 					treeComponentsInfosContextMenu.customItems.push(removeMenuItem);
 				}
 			}
 			
-			private function removeMenuItemSelect(event:ContextMenuEvent):void {
-				//FIXME: first item doesn't always been removed
-				removeComponentInfo(rolledOverComponentInfo);
-				rolledOverComponentInfo = null;
+			private function removeMenuItemSelectHandler(event:ContextMenuEvent):void {
+				removeComponentInfo(hoveredComponentInfo);
+				hoveredComponentInfo = null;
 			}
 			
 			private function treeComponentsInfosKeyDownHandler(event:KeyboardEvent):void {
@@ -246,8 +249,8 @@
 			<mx:Tree id="treeComponentsInfos" width="100%" height="30%" dataProvider="{componentsInfos}"
 				contextMenu="{treeComponentsInfosContextMenu}" keyDown="treeComponentsInfosKeyDownHandler(event)"
 				change="selectedComponentInfo = event.itemRenderer ? ComponentInfo(event.itemRenderer.data) : null"
-				itemRollOver="rolledOverComponentInfo = ComponentInfo(event.itemRenderer.data)"
-				itemRollOut="rolledOverComponentInfo = null"/>
+				itemRollOver="hoveredComponentInfo = ComponentInfo(event.itemRenderer.data)"
+				itemRollOut="hoveredComponentInfo = null"/>
 			<mx:VBox width="100%" height="70%">
 				<mx:TextInput id="txtPropertiesFilter" width="100%" change="txtFilterPropertiesChangeHandler()"/>
 				<!-- FIXME: when scrolling and focusing out scroller, it still scrolls on outside mouse moves -->

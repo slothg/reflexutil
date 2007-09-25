@@ -6,10 +6,10 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.core.IUIComponent;
+			import mx.core.UIComponent;
 			import net.kandov.reflex.utils.ComponentUtil;
 			
-			public function show(component:IUIComponent):void {
+			public function show(component:UIComponent):void {
 				visible = true;
 				includeInLayout = true;
 				
