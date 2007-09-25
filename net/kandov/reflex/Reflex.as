@@ -19,8 +19,7 @@ package net.kandov.reflex {
 		private var _id:String;
 		private var application:Application;
 		private var reflexWindow:ReflexWindow;
-		private var inspectedComponents:Dictionary;
-		private var openReflexWindow:ContextMenuItem;
+		private var reflexContextMenuItems:Dictionary;
 		
 		//--------------------------------------------------------------------------
 		// interface
@@ -37,9 +36,6 @@ package net.kandov.reflex {
 			reflexWindow = new ReflexWindow();
 			reflexWindow.x = -1;
 			reflexWindow.y = -1;
-			
-			openReflexWindow = new ContextMenuItem("Open Reflex Window");
-			openReflexWindow.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, openReflexWindowMenuItemSelect);
 		}
 		
 		public function initialized(document:Object, id:String):void {
@@ -109,47 +105,40 @@ package net.kandov.reflex {
 		}
 		
 		private function applicationContextMenuSelect(event:ContextMenuEvent):void {
-			//TODO: fix showing order, use splice
 			var customItems:Array = application.contextMenu.customItems;
-			var inspect:Object;
 			
-			var inspectIndex:int;
-			for (inspect in inspectedComponents) {
-				inspectIndex = customItems.indexOf(inspect);
-				if (inspectIndex != -1) {
-					customItems.splice(inspectIndex, 1);
+			var menuItemIndex:int;
+			for (var key:Object in reflexContextMenuItems) {
+				menuItemIndex = customItems.indexOf(key);
+				if (menuItemIndex != -1) {
+					customItems.splice(menuItemIndex, 1);
 				}
 			}
 			
-			inspectedComponents = new Dictionary();
+			reflexContextMenuItems = new Dictionary();
+			var menuItem:ContextMenuItem;
+			
+			menuItem = new ContextMenuItem("Open Reflex Window", true);
+			menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, openReflexWindowMenuItemSelect);
+			reflexContextMenuItems[menuItem] = null;
+			customItems.push(menuItem);
+			
 			var components:Array = ComponentUtil.getComponentsUnderMouse(application);
-			var separatorUsed:Boolean;
 			for each (var component:IUIComponent in components) {
-				inspect = new ContextMenuItem(
-					"Inspect [" + ComponentUtil.getComponentUID(component) + "]", !separatorUsed);
-				if (!separatorUsed) {
-					separatorUsed = true;
-				}
-				inspect.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, inspectMenuItemSelect);
-				inspectedComponents[inspect] = component;
-				customItems.push(inspect);
+				menuItem = new ContextMenuItem("Inspect [" + ComponentUtil.getComponentUID(component) + "]");
+				menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, inspectComponentMenuItemSelect);
+				reflexContextMenuItems[menuItem] = component;
+				customItems.push(menuItem);
 			}
-			
-			var openReflexWindowIndex:int = customItems.indexOf(openReflexWindow);
-			if (!reflexWindow.showing && openReflexWindowIndex == -1) {
-				customItems.push(openReflexWindow);
-			} else if (reflexWindow.showing && openReflexWindowIndex != -1) {
-				customItems.splice(openReflexWindowIndex, 1);
-			}
-		}
-		
-		private function inspectMenuItemSelect(event:ContextMenuEvent):void {
-			var component:IUIComponent = inspectedComponents[event.target];
-			reflexWindow.addComponent(component);
-			reflexWindow.show();
 		}
 		
 		private function openReflexWindowMenuItemSelect(event:ContextMenuEvent):void {
+			reflexWindow.show();
+		}
+		
+		private function inspectComponentMenuItemSelect(event:ContextMenuEvent):void {
+			var component:IUIComponent = reflexContextMenuItems[event.target];
+			reflexWindow.addComponent(component);
 			reflexWindow.show();
 		}
 		
