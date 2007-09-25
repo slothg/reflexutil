@@ -12,6 +12,7 @@ package net.kandov.reflex.utils {
 	import mx.core.IUIComponent;
 	import mx.core.IUID;
 	
+	import net.kandov.reflex.components.ComponentHover;
 	import net.kandov.reflex.types.ComponentInfo;
 	import net.kandov.reflex.types.PropertyInfo;
 	
@@ -42,7 +43,7 @@ package net.kandov.reflex.utils {
 				}
 			}
 			
-			return components.reverse();
+			return components;
 		}
 		
 		public static function getComponentUID(component:IUIComponent):String {
@@ -60,7 +61,7 @@ package net.kandov.reflex.utils {
 		}
 		
 		public static function getAbsolutePosition(component:IUIComponent):Point {
-			//TODO: why parent?
+			//TODO: need to consider padding and gaps values
 			return component.parent.localToGlobal(new Point(component.x, component.y));
 		}
 		
@@ -71,7 +72,7 @@ package net.kandov.reflex.utils {
 			if (component is Container) {
 				componentInfo.children = new Array();
 				for each (var child:DisplayObject in Container(component).getChildren()) {
-					if (child is IUIComponent) {
+					if (child is IUIComponent && !(child is ComponentHover)) {
 						componentInfo.children.push(generateComponentInfo(IUIComponent(child)));
 					}
 				}
@@ -80,6 +81,8 @@ package net.kandov.reflex.utils {
 			return componentInfo;
 		}
 		
+		//TODO: ensure removal of redundant properties
+		//TODO: add styles as properties and differentiate them from the original properties
 		public static function generatePropertiesInfos(component:IUIComponent):ArrayCollection {
 			var propertiesInfos:ArrayCollection;
 			
@@ -108,8 +111,6 @@ package net.kandov.reflex.utils {
 					
 					propertiesInfos.addItem(propertyInfo);
 				}
-				
-				//TODO: add styles as properties and differentiate them from the original properties
 			}
 			
 			return propertiesInfos;

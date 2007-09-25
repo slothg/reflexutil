@@ -2,30 +2,46 @@
 <window:SizeableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:window="com.adobe.ColdFusion.components.*"
 	layout="absolute" width="400" height="400"
-	showCloseButton="true" close="hide()">
+	showCloseButton="true" close="hide()"
+	creationComplete="creationCompleteHandler()">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
+			import mx.core.Application;
 			import mx.core.IUIComponent;
-			import mx.controls.Alert;
-			//TODO: align imports when finished
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.managers.SystemManager;
+			import net.kandov.reflex.types.ComponentInfo;
 			import net.kandov.reflex.types.PropertyInfo;
 			import net.kandov.reflex.utils.ComponentUtil;
-			import net.kandov.reflex.types.ComponentInfo;
-			import mx.collections.ArrayCollection;
-			import mx.events.ListEvent;
-			import mx.core.Application;
-			import mx.managers.PopUpManager;
 			
+			private var _application:Application;
 			private var _componentsInfos:ArrayCollection = new ArrayCollection();
+			private var _treeComponentsInfosContextMenu:ContextMenu = new ContextMenu();
 			private var _selectedComponentInfo:ComponentInfo;
+			private var _rolledOverComponentInfo:ComponentInfo;
 			private var _propertiesInfos:ArrayCollection;
 			private var alreadyShowed:Boolean;
+			private var componentHover:ComponentHover = new ComponentHover();
 			
 			//--------------------------------------------------------------------------
 			// interface
 			//--------------------------------------------------------------------------
+			
+			[Bindable(event="capplicationChanged")]
+			public function get application():Application {
+				return _application;
+			}
+			
+			public function set application(value:Application):void {
+				if (_application != value) {
+					_application = value;
+					dispatchEvent(new Event("applicationChanged"));
+				}
+			}
 			
 			[Bindable(event="showingChanged")]
 			public function get showing():Boolean {
@@ -62,29 +78,8 @@
 					}
 				}
 				
-				if (containsComponentInfo) {
-					//TODO: replace it with selecting the component
-					Alert.show("Component is already inspected.");
-				} else {
+				if (!containsComponentInfo) {
 					componentsInfos.addItem(newComponentInfo);
-				}
-			}
-			
-			[Bindable(event="selectedComponentInfoChanged")]
-			public function get selectedComponentInfo():ComponentInfo {
-				return _selectedComponentInfo;
-			}
-			
-			public function set selectedComponentInfo(value:ComponentInfo):void {
-				if (_selectedComponentInfo != value) {
-					_selectedComponentInfo = value;
-					dispatchEvent(new Event("selectedComponentInfoChanged"));
-					
-					if (value) {
-						propertiesInfos = ComponentUtil.generatePropertiesInfos(value.component);
-					} else {
-						propertiesInfos = null;
-					}
 				}
 			}
 			
@@ -104,6 +99,57 @@
 				}
 			}
 			
+			[Bindable(event="treeComponentsInfosContextMenuChanged")]
+			private function get treeComponentsInfosContextMenu():ContextMenu {
+				return _treeComponentsInfosContextMenu;
+			}
+			
+			private function set treeComponentsInfosContextMenu(value:ContextMenu):void {
+				if (_treeComponentsInfosContextMenu != value) {
+					_treeComponentsInfosContextMenu = value;
+					dispatchEvent(new Event("treeComponentsInfosContextMenuChanged"));
+				}
+			}
+			
+			[Bindable(event="selectedComponentInfoChanged")]
+			private function get selectedComponentInfo():ComponentInfo {
+				return _selectedComponentInfo;
+			}
+			
+			private function set selectedComponentInfo(value:ComponentInfo):void {
+				if (_selectedComponentInfo != value) {
+					_selectedComponentInfo = value;
+					dispatchEvent(new Event("selectedComponentInfoChanged"));
+					
+					if (value) {
+						treeComponentsInfos.selectedItem = value;
+						propertiesInfos = ComponentUtil.generatePropertiesInfos(value.component);
+					} else {
+						propertiesInfos = null;
+					}
+				}
+			}
+			
+			[Bindable(event="rolledOverComponentInfoChanged")]
+			private function get rolledOverComponentInfo():ComponentInfo {
+				return _rolledOverComponentInfo;
+			}
+			
+			private function set rolledOverComponentInfo(value:ComponentInfo):void {
+				if (_rolledOverComponentInfo != value) {
+					if (_rolledOverComponentInfo) {
+						componentHover.hide();
+					}
+					
+					if (value) {
+						componentHover.show(value.component);
+					}
+					
+					_rolledOverComponentInfo = value;
+					dispatchEvent(new Event("rolledOverComponentInfoChanged"));
+				}
+			}
+			
 			[Bindable(event="propertiesInfosChanged")]
 			private function get propertiesInfos():ArrayCollection {
 				return _propertiesInfos;
@@ -119,15 +165,30 @@
 						filter = _propertiesInfos.filterFunction;
 					}
 					
-					_propertiesInfos = value;
-					
-					if (_propertiesInfos) {
-						_propertiesInfos.sort = sort;
-						_propertiesInfos.filterFunction = filter;
-						_propertiesInfos.refresh();
+					if (value) {
+						value.sort = sort;
+						value.filterFunction = filter;
+						value.refresh();
 					}
 					
+					_propertiesInfos = value;
 					dispatchEvent(new Event("propertiesInfosChanged"));
+				}
+			}
+			
+			private function removeComponentInfo(componentInfo:ComponentInfo):void {
+				//TODO: remove the root holder component info node.. seek for it
+				var index:int = componentsInfos.getItemIndex(componentInfo);
+				if (index != -1) {
+					componentsInfos.removeItemAt(index);
+					
+					if (index < componentsInfos.length) {
+						selectedComponentInfo = componentsInfos[index];
+					} else if (index != 0) {
+						selectedComponentInfo = componentsInfos[index - 1];
+					} else {
+						selectedComponentInfo = null
+					}
 				}
 			}
 			
@@ -142,45 +203,38 @@
 			// handlers
 			//--------------------------------------------------------------------------
 			
-			private function treeComponentsInfosChangeHandler(event:ListEvent):void {
-				selectedComponentInfo = ComponentInfo(event.itemRenderer.data);
+			private function creationCompleteHandler():void {
+				application.addChild(componentHover);
+				
+				treeComponentsInfosContextMenu.hideBuiltInItems();
+				treeComponentsInfosContextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
+					treeComponentsInfosContextMenuSelectHandler);
+			}
+			
+			private function treeComponentsInfosContextMenuSelectHandler(event:ContextMenuEvent):void {
+				treeComponentsInfosContextMenu.customItems = new Array();
+				if (rolledOverComponentInfo) {
+					selectedComponentInfo = rolledOverComponentInfo;
+					
+					var removeMenuItem:ContextMenuItem = new ContextMenuItem("Remove");
+					removeMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, removeMenuItemSelect);
+					treeComponentsInfosContextMenu.customItems.push(removeMenuItem);
+				}
+			}
+			
+			private function removeMenuItemSelect(event:ContextMenuEvent):void {
+				//FIXME: first item doesn't always been removed
+				removeComponentInfo(rolledOverComponentInfo);
+				rolledOverComponentInfo = null;
 			}
 			
 			private function treeComponentsInfosKeyDownHandler(event:KeyboardEvent):void {
 				if (event.keyCode == Keyboard.DELETE) {
-					var index:int = componentsInfos.getItemIndex(treeComponentsInfos.selectedItem);
-					if (index != -1) {
-						componentsInfos.removeItemAt(index);
-						selectedComponentInfo = null;
-					}
+					removeComponentInfo(ComponentInfo(treeComponentsInfos.selectedItem));
 				}
 			}
 			
-			private function treeComponentsInfosItemRollOverHandler(event:ListEvent):void {
-				//Application.application.txtOutput.text = treeComponentsInfos.dataProvider(event.rowIndex);
-				Application.application.txtOutput.text = event.target;
-				/* var componentInfo:ComponentInfo = ComponentInfo(treeComponentsInfos.getChildAt(event.rowIndex));
-				Application.application.txtOutput.text = componentInfo; */
-				
-				//TODO: consider saving in ComponentInfo object the absolute screen rect position and use it here
-				// like hover.screen = componentInfo.screen...
-				//TODO: maybe use the getRect() function
-				/* var absolutePosition:Point = ComponentUtil.getAbsolutePosition(component);
-				canvasHover.width = component.width;
-				canvasHover.height = component.height;
-				canvasHover.x = absolutePosition.x;
-				canvasHover.y = absolutePosition.y;
-				
-				//TODO: add label/toolTip with uid and typeof
-				canvasHover.toolTip = component.uid; */
-			}
-			
-			private function treeComponentsInfosItemRollOutHandler():void {
-				//TODO: make hover invisible and not included in layout
-				Application.application.txtOutput.text = null;
-			}
-			
-			private function txtFilterChangeHandler():void {
+			private function txtFilterPropertiesChangeHandler():void {
 				propertiesInfos.filterFunction = filterPropertiesInfos;
 				propertiesInfos.refresh();
 			}
@@ -190,11 +244,13 @@
 	<mx:VBox width="100%" height="100%">
 		<mx:VDividedBox width="100%" height="100%">
 			<mx:Tree id="treeComponentsInfos" width="100%" height="30%" dataProvider="{componentsInfos}"
-				change="treeComponentsInfosChangeHandler(event)" keyDown="treeComponentsInfosKeyDownHandler(event)"
-				itemRollOver="treeComponentsInfosItemRollOverHandler(event)"
-				itemRollOut="treeComponentsInfosItemRollOutHandler()"/>
+				contextMenu="{treeComponentsInfosContextMenu}" keyDown="treeComponentsInfosKeyDownHandler(event)"
+				change="selectedComponentInfo = event.itemRenderer ? ComponentInfo(event.itemRenderer.data) : null"
+				itemRollOver="rolledOverComponentInfo = ComponentInfo(event.itemRenderer.data)"
+				itemRollOut="rolledOverComponentInfo = null"/>
 			<mx:VBox width="100%" height="70%">
-				<mx:TextInput id="txtPropertiesFilter" width="100%" change="txtFilterChangeHandler()"/>
+				<mx:TextInput id="txtPropertiesFilter" width="100%" change="txtFilterPropertiesChangeHandler()"/>
+				<!-- FIXME: when scrolling and focusing out scroller, it still scrolls on outside mouse moves -->
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
 					<mx:columns>
 						<mx:DataGridColumn headerText="Property Name" dataField="name"/>

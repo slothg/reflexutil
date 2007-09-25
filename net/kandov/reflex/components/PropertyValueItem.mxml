@@ -5,7 +5,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			//TODO: align imports when finished
 			import mx.states.State;
 			import net.kandov.reflex.types.PropertyInfo;
 			

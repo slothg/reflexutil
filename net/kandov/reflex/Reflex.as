@@ -13,6 +13,9 @@ package net.kandov.reflex {
 	import net.kandov.reflex.components.ReflexWindow;
 	import net.kandov.reflex.utils.ComponentUtil;
 	
+	//TODO: block designer from adding ReflexWindow.mxml or any other class than Reflex
+	//TODO: change project name to ReflexUtil, consider changing main class name also
+	//TODO: figure how to expose inspectable metadata for this class (--keep-as3-metadata or something...?)
 	public class Reflex
 	implements IMXMLObject {
 		
@@ -34,6 +37,7 @@ package net.kandov.reflex {
 			application.addEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
 			
 			reflexWindow = new ReflexWindow();
+			reflexWindow.application = application;
 			reflexWindow.x = -1;
 			reflexWindow.y = -1;
 		}

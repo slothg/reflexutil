@@ -1,4 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 	backgroundColor="#ff0000" backgroundAlpha="0.2"
-	borderStyle="solid" borderColor="#ff0000" borderThickness="2"/>
+	borderStyle="solid" borderColor="#ff0000" borderThickness="1"
+	initialize="hide()">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.core.IUIComponent;
+			import net.kandov.reflex.utils.ComponentUtil;
+			
+			public function show(component:IUIComponent):void {
+				visible = true;
+				includeInLayout = true;
+				
+				var absolutePoint:Point = ComponentUtil.getAbsolutePosition(component);
+				x = absolutePoint.x;
+				y = absolutePoint.y;
+				
+				width = component.width;
+				height = component.height;
+			}
+			
+			public function hide():void {
+				visible = false;
+				includeInLayout = false;
+			}
+		]]>
+	</mx:Script>
+	
+</mx:Canvas>
