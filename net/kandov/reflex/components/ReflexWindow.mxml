@@ -6,10 +6,9 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.Sort;
 			import mx.core.IUIComponent;
 			import mx.controls.Alert;
-			import mx.collections.SortField;
-			import mx.collections.Sort;
 			//TODO: align imports when finished
 			import net.kandov.reflex.types.PropertyInfo;
 			import net.kandov.reflex.utils.ComponentUtil;
@@ -112,21 +111,29 @@
 			
 			private function set propertiesInfos(value:ArrayCollection):void {
 				if (_propertiesInfos != value) {
-					if (value) {
-						var sort:Sort = new Sort();
-						sort.fields = [new SortField("name", true)];
-						value.sort = new Sort();
-						value.refresh();
+					var sort:Sort;
+					var filter:Function;
+					
+					if (_propertiesInfos) {
+						sort = _propertiesInfos.sort;
+						filter = _propertiesInfos.filterFunction;
 					}
 					
 					_propertiesInfos = value;
+					
+					if (_propertiesInfos) {
+						_propertiesInfos.sort = sort;
+						_propertiesInfos.filterFunction = filter;
+						_propertiesInfos.refresh();
+					}
+					
 					dispatchEvent(new Event("propertiesInfosChanged"));
 				}
 			}
 			
 			private function filterPropertiesInfos(item:Object):Boolean {
 				var propertyName:String = PropertyInfo(item).name.toLocaleLowerCase();
-				var filterString:String = txtFilter.text.toLowerCase();
+				var filterString:String = txtPropertiesFilter.text.toLowerCase();
 				
 				return propertyName.indexOf(filterString) == -1 ? false : true;
 			}
@@ -187,7 +194,7 @@
 				itemRollOver="treeComponentsInfosItemRollOverHandler(event)"
 				itemRollOut="treeComponentsInfosItemRollOutHandler()"/>
 			<mx:VBox width="100%" height="70%">
-				<mx:TextInput id="txtFilter" width="100%" change="txtFilterChangeHandler()"/>
+				<mx:TextInput id="txtPropertiesFilter" width="100%" change="txtFilterChangeHandler()"/>
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
 					<mx:columns>
 						<mx:DataGridColumn headerText="Property Name" dataField="name"/>

@@ -1,6 +1,7 @@
 package net.kandov.reflex.utils {
 	
 	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.utils.describeType;
@@ -16,7 +17,6 @@ package net.kandov.reflex.utils {
 	
 	public class ComponentUtil {
 		
-		//TODO: check if necassary after implementing getComponentsUnderMousePoint
 		public static function getHolderComponent(displayObject:DisplayObject):IUIComponent {
 			if (displayObject is IUIComponent) {
 				return IUIComponent(displayObject);
@@ -29,9 +29,20 @@ package net.kandov.reflex.utils {
 			}
 		}
 		
-		public static function getComponentsUnderMouse(displayObject:DisplayObject):Array {
-			//TODO: implement with recurse, delete temporary following line.
-			return [getHolderComponent(displayObject)];
+		public static function getComponentsUnderMouse(container:DisplayObjectContainer):Array {
+			var components:Array = new Array;
+			
+			var globalMousePoint:Point = container.localToGlobal(new Point(container.mouseX, container.mouseY));
+			var displayObjects:Array = container.getObjectsUnderPoint(globalMousePoint);
+			
+			for each (var displayObject:DisplayObject in displayObjects) {
+				var component:IUIComponent = getHolderComponent(displayObject);
+				if (component) {
+					components.push(component);
+				}
+			}
+			
+			return components.reverse();
 		}
 		
 		public static function getComponentUID(component:IUIComponent):String {

@@ -98,6 +98,7 @@
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="Object">
+			<!-- TODO: add ObjectUtil.toString(value) window with an initiator icon -->
 			<mx:AddChild>
 				<mx:Label width="100%" text="{propertyInfo.value}"/>
 			</mx:AddChild>
