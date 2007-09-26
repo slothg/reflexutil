@@ -1,4 +1,4 @@
-package net.kandov.reflex.utils {
+package net.kandov.reflexutil.utils {
 	
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
@@ -87,7 +87,6 @@ package net.kandov.reflex.utils {
 			return componentInfo;
 		}
 		
-		//TODO: ensure removal of redundant properties
 		//TODO: add styles as properties and differentiate them from the original properties
 		public static function generatePropertiesInfos(component:UIComponent):ArrayCollection {
 			var propertiesInfos:ArrayCollection;
@@ -98,24 +97,34 @@ package net.kandov.reflex.utils {
 				var propertyInfo:PropertyInfo;
 				
 				for each (var property:XML in properties) {
-					propertyInfo = new PropertyInfo(component, property.@name, property.@type, property.@access);
-					
-					var metadataCollection:XMLList = property["metadata"];
-					for each (var metadata:XML in metadataCollection) {
-						if (metadata.@name == "Bindable") {
-							propertyInfo.bindable = true;
+					var propertyInfoExists:Boolean;
+					for each (propertyInfo in propertiesInfos) {
+						if (propertyInfo.name == property.@name) {
+							propertyInfoExists = true;
 							break;
 						}
 					}
 					
-					if (propertyInfo.access != "writeonly") {
-						BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
-						if (component[propertyInfo.name]) {
-							propertyInfo.value = component[propertyInfo.name];
+					if (!propertyInfoExists) {
+						propertyInfo = new PropertyInfo(component, property.@name, property.@type, property.@access);
+						
+						var metadataCollection:XMLList = property["metadata"];
+						for each (var metadata:XML in metadataCollection) {
+							if (metadata.@name == "Bindable") {
+								propertyInfo.bindable = true;
+								break;
+							}
 						}
+						
+						if (propertyInfo.access != "writeonly") {
+							BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
+							if (component[propertyInfo.name]) {
+								propertyInfo.value = component[propertyInfo.name];
+							}
+						}
+						
+						propertiesInfos.addItem(propertyInfo);
 					}
-					
-					propertiesInfos.addItem(propertyInfo);
 				}
 			}
 			

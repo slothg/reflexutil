@@ -1,4 +1,4 @@
-package net.kandov.reflex.utils {
+package net.kandov.reflexutil.utils {
 	
 	import flash.utils.getQualifiedClassName;
 	

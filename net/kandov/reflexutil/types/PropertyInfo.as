@@ -1,4 +1,4 @@
-package net.kandov.reflex.types {
+package net.kandov.reflexutil.types {
 	
 	import flash.events.EventDispatcher;
 	

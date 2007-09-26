@@ -1,4 +1,4 @@
-package net.kandov.reflex {
+package net.kandov.reflexutil {
 	
 	import flash.events.ContextMenuEvent;
 	import flash.ui.ContextMenuItem;
@@ -13,22 +13,20 @@ package net.kandov.reflex {
 	import net.kandov.reflex.components.ReflexWindow;
 	import net.kandov.reflex.utils.ComponentUtil;
 	
-	//TODO: block designer from adding ReflexWindow.mxml or any other class than Reflex
 	//TODO: change project name to ReflexUtil, consider changing main class name also
-	//TODO: figure how to expose inspectable metadata for this class (--keep-as3-metadata or something...?)
-	public class Reflex
+	public class ReflexUtil
 	implements IMXMLObject {
 		
 		private var _id:String;
 		private var application:Application;
 		private var reflexWindow:ReflexWindow;
-		private var reflexContextMenuItems:Dictionary;
+		private var contextMenuItems:Dictionary;
 		
 		//--------------------------------------------------------------------------
 		// interface
 		//--------------------------------------------------------------------------
 		
-		public function Reflex() {
+		public function ReflexUtil() {
 			super();
 			
 			_id = UIDUtil.createUID();
@@ -114,20 +112,20 @@ package net.kandov.reflex {
 			var customItems:Array = application.contextMenu.customItems;
 			
 			var menuItemIndex:int;
-			for (var key:Object in reflexContextMenuItems) {
+			for (var key:Object in contextMenuItems) {
 				menuItemIndex = customItems.indexOf(key);
 				if (menuItemIndex != -1) {
 					customItems.splice(menuItemIndex, 1);
 				}
 			}
 			
-			reflexContextMenuItems = new Dictionary();
+			contextMenuItems = new Dictionary();
 			var menuItem:ContextMenuItem;
 			
 			menuItem = new ContextMenuItem("Open Reflex Window", true);
 			menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
 				openReflexWindowMenuItemSelectHandler, false, 0, true);
-			reflexContextMenuItems[menuItem] = null;
+			contextMenuItems[menuItem] = null;
 			customItems.push(menuItem);
 			
 			var components:Array = ComponentUtil.getComponentsUnderMouse(application);
@@ -135,7 +133,7 @@ package net.kandov.reflex {
 				menuItem = new ContextMenuItem("Inspect [" + ComponentUtil.getUID(component) + "]");
 				menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
 					inspectComponentMenuItemSelectHandler, false, 0, true);
-				reflexContextMenuItems[menuItem] = component;
+				contextMenuItems[menuItem] = component;
 				customItems.push(menuItem);
 			}
 		}
@@ -145,7 +143,7 @@ package net.kandov.reflex {
 		}
 		
 		private function inspectComponentMenuItemSelectHandler(event:ContextMenuEvent):void {
-			var component:UIComponent = reflexContextMenuItems[event.target];
+			var component:UIComponent = contextMenuItems[event.target];
 			reflexWindow.addComponent(component);
 			reflexWindow.show();
 		}

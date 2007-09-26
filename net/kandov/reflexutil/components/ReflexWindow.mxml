@@ -117,9 +117,10 @@
 			}
 			
 			private function set selectedComponentInfo(value:ComponentInfo):void {
+				treeComponentsInfos.selectedItem = value;
+				
 				if (_selectedComponentInfo != value) {
 					if (value) {
-						treeComponentsInfos.selectedItem = value;
 						propertiesInfos = ComponentUtil.generatePropertiesInfos(value.component);
 					} else {
 						propertiesInfos = null;
@@ -144,9 +145,6 @@
 					if (value) {
 						componentHover.show(value.component);
 					}
-					
-					//TODO: debug - delte
-					application["txtOutput"].text = value;
 					
 					_hoveredComponentInfo = value;
 					dispatchEvent(new Event("hoveredComponentInfoChanged"));
@@ -185,7 +183,7 @@
 				if (index != -1) {
 					componentsInfos.removeItemAt(index);
 					
-					if (hoveredComponentInfo == rootComponentInfo) {
+					if (ComponentUtil.getRootComponentInfo(hoveredComponentInfo) == rootComponentInfo) {
 						hoveredComponentInfo = null;
 					}
 					
@@ -254,16 +252,18 @@
 			<mx:Tree id="treeComponentsInfos" width="100%" height="30%" dataProvider="{componentsInfos}"
 				contextMenu="{treeComponentsInfosContextMenu}" keyDown="treeComponentsInfosKeyDownHandler(event)"
 				change="selectedComponentInfo = event.itemRenderer ? ComponentInfo(event.itemRenderer.data) : null"
-				itemRollOver="hoveredComponentInfo = ComponentInfo(event.itemRenderer.data)"/>
+				itemRollOver="hoveredComponentInfo = ComponentInfo(event.itemRenderer.data)"
+				itemRollOut="hoveredComponentInfo = null"/>
 			<mx:VBox width="100%" height="70%">
 				<mx:TextInput id="txtPropertiesFilter" width="100%" change="txtFilterPropertiesChangeHandler()"/>
 				<!-- FIXME: when scrolling and focusing out scroller, it still scrolls on outside mouse moves -->
+				<!-- FIXME: when using filter, value change is problematic (try 'label' on 'btnTest') -->
 				<!-- TODO: add property watch tab, and icon at itemRenderer to add there property watches -->
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
 					<mx:columns>
 						<mx:DataGridColumn headerText="Property Name" dataField="name"/>
 						<mx:DataGridColumn headerText="Property Value" dataField="value"
-							itemRenderer="{new ClassFactory(PropertyValueItem)}">
+							itemRenderer="{new ClassFactory(PropertyValueEditor)}">
 						</mx:DataGridColumn>
 					</mx:columns>
 				</mx:DataGrid>
