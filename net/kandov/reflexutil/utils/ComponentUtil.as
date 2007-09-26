@@ -92,39 +92,37 @@ package net.kandov.reflexutil.utils {
 			var propertiesInfos:ArrayCollection;
 			
 			var properties:XMLList = describeType(component).accessor;
-			if (properties.length() > 0) {
+			var property:XML;
+			var uniqueProperties:XMLList = new XMLList();
+			for each (property in properties) {
+				if (!uniqueProperties.contains(property)) {
+					uniqueProperties += property;
+				}
+			}
+			
+			if (uniqueProperties.length() > 0) {
 				propertiesInfos = new ArrayCollection();
 				var propertyInfo:PropertyInfo;
 				
-				for each (var property:XML in properties) {
-					var propertyInfoExists:Boolean;
-					for each (propertyInfo in propertiesInfos) {
-						if (propertyInfo.name == property.@name) {
-							propertyInfoExists = true;
+				for each (property in uniqueProperties) {
+					propertyInfo = new PropertyInfo(component, property.@name, property.@type, property.@access);
+					
+					var metadataCollection:XMLList = property["metadata"];
+					for each (var metadata:XML in metadataCollection) {
+						if (metadata.@name == "Bindable") {
+							propertyInfo.bindable = true;
 							break;
 						}
 					}
 					
-					if (!propertyInfoExists) {
-						propertyInfo = new PropertyInfo(component, property.@name, property.@type, property.@access);
-						
-						var metadataCollection:XMLList = property["metadata"];
-						for each (var metadata:XML in metadataCollection) {
-							if (metadata.@name == "Bindable") {
-								propertyInfo.bindable = true;
-								break;
-							}
+					if (propertyInfo.access != "writeonly") {
+						BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
+						if (component[propertyInfo.name]) {
+							propertyInfo.value = component[propertyInfo.name];
 						}
-						
-						if (propertyInfo.access != "writeonly") {
-							BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
-							if (component[propertyInfo.name]) {
-								propertyInfo.value = component[propertyInfo.name];
-							}
-						}
-						
-						propertiesInfos.addItem(propertyInfo);
 					}
+					
+					propertiesInfos.addItem(propertyInfo);
 				}
 			}
 			
