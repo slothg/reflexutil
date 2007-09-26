@@ -31,7 +31,7 @@
 			// interface
 			//--------------------------------------------------------------------------
 			
-			[Bindable(event="capplicationChanged")]
+			[Bindable(event="applicationChanged")]
 			public function get application():Application {
 				return _application;
 			}
@@ -145,6 +145,9 @@
 						componentHover.show(value.component);
 					}
 					
+					//TODO: debug - delte
+					application["txtOutput"].text = value;
+					
 					_hoveredComponentInfo = value;
 					dispatchEvent(new Event("hoveredComponentInfoChanged"));
 				}
@@ -177,11 +180,14 @@
 			}
 			
 			private function removeComponentInfo(componentInfo:ComponentInfo):void {
-				//FIXME: sometimes the first componentInfo item can't be removes, especially with contextMenu
 				var rootComponentInfo:ComponentInfo = ComponentUtil.getRootComponentInfo(componentInfo);
 				var index:int = componentsInfos.getItemIndex(rootComponentInfo);
 				if (index != -1) {
 					componentsInfos.removeItemAt(index);
+					
+					if (hoveredComponentInfo == rootComponentInfo) {
+						hoveredComponentInfo = null;
+					}
 					
 					if (index < componentsInfos.length) {
 						selectedComponentInfo = componentsInfos[index];
@@ -228,7 +234,6 @@
 			
 			private function removeMenuItemSelectHandler(event:ContextMenuEvent):void {
 				removeComponentInfo(hoveredComponentInfo);
-				hoveredComponentInfo = null;
 			}
 			
 			private function treeComponentsInfosKeyDownHandler(event:KeyboardEvent):void {
@@ -249,11 +254,11 @@
 			<mx:Tree id="treeComponentsInfos" width="100%" height="30%" dataProvider="{componentsInfos}"
 				contextMenu="{treeComponentsInfosContextMenu}" keyDown="treeComponentsInfosKeyDownHandler(event)"
 				change="selectedComponentInfo = event.itemRenderer ? ComponentInfo(event.itemRenderer.data) : null"
-				itemRollOver="hoveredComponentInfo = ComponentInfo(event.itemRenderer.data)"
-				itemRollOut="hoveredComponentInfo = null"/>
+				itemRollOver="hoveredComponentInfo = ComponentInfo(event.itemRenderer.data)"/>
 			<mx:VBox width="100%" height="70%">
 				<mx:TextInput id="txtPropertiesFilter" width="100%" change="txtFilterPropertiesChangeHandler()"/>
 				<!-- FIXME: when scrolling and focusing out scroller, it still scrolls on outside mouse moves -->
+				<!-- TODO: add property watch tab, and icon at itemRenderer to add there property watches -->
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
 					<mx:columns>
 						<mx:DataGridColumn headerText="Property Name" dataField="name"/>
