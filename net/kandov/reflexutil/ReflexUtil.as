@@ -47,31 +47,11 @@ package net.kandov.reflexutil {
 			_id = id;
 		}
 		
-		public function get windowWidth():int {
-			return window.width;
-		}
-		
-		public function set windowWidth(value:int):void {
-			if (window.width != value) {
-				window.width = value;
-			}
-		}
-		
-		public function get windowHeight():int {
-			return window.height;
-		}
-		
-		public function set windowHeight(value:int):void {
-			if (window.height != value) {
-				window.height = value;
-			}
-		}
-		
-		public function get windowX():int {
+		public function get x():int {
 			return window.x;
 		}
 		
-		public function set windowX(value:int):void {
+		public function set x(value:int):void {
 			if (window.x != value) {
 				window.x = value;
 				if (window.y == -1) {
@@ -80,16 +60,36 @@ package net.kandov.reflexutil {
 			}
 		}
 		
-		public function get windowY():int {
+		public function get y():int {
 			return window.y;
 		}
 		
-		public function set windowY(value:int):void {
+		public function set y(value:int):void {
 			if (window.y != value) {
 				window.y = value;
 				if (window.x == -1) {
 					window.x = 0;
 				}
+			}
+		}
+		
+		public function get width():int {
+			return window.width;
+		}
+		
+		public function set width(value:int):void {
+			if (window.width != value) {
+				window.width = value;
+			}
+		}
+		
+		public function get height():int {
+			return window.height;
+		}
+		
+		public function set height(value:int):void {
+			if (window.height != value) {
+				window.height = value;
 			}
 		}
 		
