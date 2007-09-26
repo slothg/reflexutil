@@ -6,6 +6,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.SortField;
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.core.Application;
@@ -166,6 +167,11 @@
 					}
 					
 					if (value) {
+						if (!sort) {
+							sort = new Sort();
+							sort.fields = [new SortField("name")];
+						}
+						
 						value.sort = sort;
 						value.filterFunction = filter;
 						value.refresh();
