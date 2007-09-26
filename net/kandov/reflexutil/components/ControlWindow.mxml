@@ -267,7 +267,7 @@
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
 					<mx:columns>
 						<mx:DataGridColumn headerText="Property Name" dataField="name"/>
-						<mx:DataGridColumn headerText="Property Value" dataField="value"
+						<mx:DataGridColumn headerText="Property Value" dataField="value" sortable="false"
 							itemRenderer="{new ClassFactory(PropertyValueEditor)}">
 						</mx:DataGridColumn>
 					</mx:columns>
