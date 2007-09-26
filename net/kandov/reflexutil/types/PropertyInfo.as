@@ -4,8 +4,8 @@ package net.kandov.reflexutil.types {
 	
 	import mx.core.UIComponent;
 	
-	import net.kandov.reflex.utils.ClassUtil;
-	import net.kandov.reflex.utils.IComparable;
+	import net.kandov.reflexutil.utils.ClassUtil;
+	import net.kandov.reflexutil.utils.IComparable;
 	
 	[Bindable]
 	public class PropertyInfo

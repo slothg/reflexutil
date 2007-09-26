@@ -11,9 +11,9 @@ package net.kandov.reflexutil.utils {
 	import mx.core.Container;
 	import mx.core.UIComponent;
 	
-	import net.kandov.reflex.components.ComponentHover;
-	import net.kandov.reflex.types.ComponentInfo;
-	import net.kandov.reflex.types.PropertyInfo;
+	import net.kandov.reflexutil.components.ComponentHover;
+	import net.kandov.reflexutil.types.ComponentInfo;
+	import net.kandov.reflexutil.types.PropertyInfo;
 	
 	public class ComponentUtil {
 		

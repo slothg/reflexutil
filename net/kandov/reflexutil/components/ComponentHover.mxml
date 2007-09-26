@@ -7,7 +7,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.core.UIComponent;
-			import net.kandov.reflex.utils.ComponentUtil;
+			import net.kandov.reflexutil.utils.ComponentUtil;
 			
 			public function show(component:UIComponent):void {
 				visible = true;

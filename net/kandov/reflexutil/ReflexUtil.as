@@ -1,6 +1,7 @@
 package net.kandov.reflexutil {
 	
 	import flash.events.ContextMenuEvent;
+	import flash.net.navigateToURL;
 	import flash.ui.ContextMenuItem;
 	import flash.utils.Dictionary;
 	
@@ -10,16 +11,16 @@ package net.kandov.reflexutil {
 	import mx.events.FlexEvent;
 	import mx.utils.UIDUtil;
 	
-	import net.kandov.reflex.components.ReflexWindow;
-	import net.kandov.reflex.utils.ComponentUtil;
+	import net.kandov.reflexutil.components.ControlWindow;
+	import net.kandov.reflexutil.utils.ComponentUtil;
+	import flash.net.URLRequest;
 	
-	//TODO: change project name to ReflexUtil, consider changing main class name also
 	public class ReflexUtil
 	implements IMXMLObject {
 		
 		private var _id:String;
 		private var application:Application;
-		private var reflexWindow:ReflexWindow;
+		private var window:ControlWindow;
 		private var contextMenuItems:Dictionary;
 		
 		//--------------------------------------------------------------------------
@@ -34,10 +35,10 @@ package net.kandov.reflexutil {
 			application = Application(Application.application);
 			application.addEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
 			
-			reflexWindow = new ReflexWindow();
-			reflexWindow.application = application;
-			reflexWindow.x = -1;
-			reflexWindow.y = -1;
+			window = new ControlWindow();
+			window.application = application;
+			window.x = -1;
+			window.y = -1;
 		}
 		
 		public function initialized(document:Object, id:String):void {
@@ -46,50 +47,50 @@ package net.kandov.reflexutil {
 		
 		[Inspectable(defaultValue=400)]
 		public function get windowWidth():int {
-			return reflexWindow.width;
+			return window.width;
 		}
 		
 		public function set windowWidth(value:int):void {
-			if (reflexWindow.width != value) {
-				reflexWindow.width = value;
+			if (window.width != value) {
+				window.width = value;
 			}
 		}
 		
 		[Inspectable(defaultValue=400)]
 		public function get windowHeight():int {
-			return reflexWindow.height;
+			return window.height;
 		}
 		
 		public function set windowHeight(value:int):void {
-			if (reflexWindow.height != value) {
-				reflexWindow.height = value;
+			if (window.height != value) {
+				window.height = value;
 			}
 		}
 		
 		[Inspectable(defaultValue=-1)]
 		public function get windowX():int {
-			return reflexWindow.x;
+			return window.x;
 		}
 		
 		public function set windowX(value:int):void {
-			if (reflexWindow.x != value) {
-				reflexWindow.x = value;
-				if (reflexWindow.y == -1) {
-					reflexWindow.y = 0;
+			if (window.x != value) {
+				window.x = value;
+				if (window.y == -1) {
+					window.y = 0;
 				}
 			}
 		}
 		
 		[Inspectable(defaultValue=-1)]
 		public function get windowY():int {
-			return reflexWindow.y;
+			return window.y;
 		}
 		
 		public function set windowY(value:int):void {
-			if (reflexWindow.y != value) {
-				reflexWindow.y = value;
-				if (reflexWindow.x == -1) {
-					reflexWindow.x = 0;
+			if (window.y != value) {
+				window.y = value;
+				if (window.x == -1) {
+					window.x = 0;
 				}
 			}
 		}
@@ -122,11 +123,19 @@ package net.kandov.reflexutil {
 			contextMenuItems = new Dictionary();
 			var menuItem:ContextMenuItem;
 			
-			menuItem = new ContextMenuItem("Open Reflex Window", true);
+			menuItem = new ContextMenuItem("ReflexUtil Project Page", true);
 			menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
-				openReflexWindowMenuItemSelectHandler, false, 0, true);
+				projectPageMenuItemSelectHandler, false, 0, true);
 			contextMenuItems[menuItem] = null;
 			customItems.push(menuItem);
+			
+			if (!window.showing) {
+				menuItem = new ContextMenuItem("Open Window");
+				menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
+					openWindowMenuItemSelectHandler, false, 0, true);
+				contextMenuItems[menuItem] = null;
+				customItems.push(menuItem);
+			}
 			
 			var components:Array = ComponentUtil.getComponentsUnderMouse(application);
 			for each (var component:UIComponent in components) {
@@ -138,14 +147,18 @@ package net.kandov.reflexutil {
 			}
 		}
 		
-		private function openReflexWindowMenuItemSelectHandler(event:ContextMenuEvent):void {
-			reflexWindow.show();
+		private function projectPageMenuItemSelectHandler(event:ContextMenuEvent):void {
+			navigateToURL(new URLRequest("http://reflexutil.googlecode.com"), "_blank");
+		}
+		
+		private function openWindowMenuItemSelectHandler(event:ContextMenuEvent):void {
+			window.show();
 		}
 		
 		private function inspectComponentMenuItemSelectHandler(event:ContextMenuEvent):void {
 			var component:UIComponent = contextMenuItems[event.target];
-			reflexWindow.addComponent(component);
-			reflexWindow.show();
+			window.addComponent(component);
+			window.show();
 		}
 		
 	}

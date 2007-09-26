@@ -14,9 +14,9 @@
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.managers.SystemManager;
-			import net.kandov.reflex.types.ComponentInfo;
-			import net.kandov.reflex.types.PropertyInfo;
-			import net.kandov.reflex.utils.ComponentUtil;
+			import net.kandov.reflexutil.types.ComponentInfo;
+			import net.kandov.reflexutil.utils.ComponentUtil;
+			import net.kandov.reflexutil.types.PropertyInfo;
 			
 			private var _application:Application;
 			private var _componentsInfos:ArrayCollection = new ArrayCollection();

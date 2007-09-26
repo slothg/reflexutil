@@ -6,7 +6,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.states.State;
-			import net.kandov.reflex.types.PropertyInfo;
+			import net.kandov.reflexutil.types.PropertyInfo;
 			
 			public function get value():Object {
 				return propertyInfo.value;
