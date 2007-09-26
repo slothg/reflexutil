@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window:SizeableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:window="com.adobe.ColdFusion.components.*"
-	layout="absolute" width="400" height="400"
-	showCloseButton="true" close="hide()"
+	layout="absolute" showCloseButton="true" close="hide()"
 	creationComplete="creationCompleteHandler()">
 	
 	<mx:Script>

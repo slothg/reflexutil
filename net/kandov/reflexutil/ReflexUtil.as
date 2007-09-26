@@ -1,6 +1,7 @@
 package net.kandov.reflexutil {
 	
 	import flash.events.ContextMenuEvent;
+	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
 	import flash.ui.ContextMenuItem;
 	import flash.utils.Dictionary;
@@ -13,7 +14,6 @@ package net.kandov.reflexutil {
 	
 	import net.kandov.reflexutil.components.ControlWindow;
 	import net.kandov.reflexutil.utils.ComponentUtil;
-	import flash.net.URLRequest;
 	
 	public class ReflexUtil
 	implements IMXMLObject {
@@ -39,13 +39,14 @@ package net.kandov.reflexutil {
 			window.application = application;
 			window.x = -1;
 			window.y = -1;
+			window.width = 400;
+			window.height = 400;
 		}
 		
 		public function initialized(document:Object, id:String):void {
 			_id = id;
 		}
 		
-		[Inspectable(defaultValue=400)]
 		public function get windowWidth():int {
 			return window.width;
 		}
@@ -56,7 +57,6 @@ package net.kandov.reflexutil {
 			}
 		}
 		
-		[Inspectable(defaultValue=400)]
 		public function get windowHeight():int {
 			return window.height;
 		}
@@ -67,7 +67,6 @@ package net.kandov.reflexutil {
 			}
 		}
 		
-		[Inspectable(defaultValue=-1)]
 		public function get windowX():int {
 			return window.x;
 		}
@@ -81,7 +80,6 @@ package net.kandov.reflexutil {
 			}
 		}
 		
-		[Inspectable(defaultValue=-1)]
 		public function get windowY():int {
 			return window.y;
 		}
