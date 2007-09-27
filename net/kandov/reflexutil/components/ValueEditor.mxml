@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-	width="100%" height="100%" dataChange="dataChangeHandler()"
-	backgroundColor="{propertyInfo.bindable ? 44546543 : 16777215}">
+	dataChange="dataChangeHandler()">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
 			import mx.states.State;
 			import net.kandov.reflexutil.types.PropertyInfo;
 			
@@ -40,23 +42,36 @@
 					}
 				}
 			}
+			
+			private function imgDescribeClickHandler():void {
+				var descritor:ValueDescriptor = new ValueDescriptor();
+				descritor.data = propertyInfo;
+				descritor.addEventListener(CloseEvent.CLOSE, popUpCloseHandler, false, 0, true);
+				PopUpManager.addPopUp(descritor, this);
+				PopUpManager.centerPopUp(descritor);
+			}
+			
+			private function popUpCloseHandler(event:CloseEvent):void {
+				var popUp:IFlexDisplayObject = IFlexDisplayObject(event.currentTarget);
+				popUp.removeEventListener(CloseEvent.CLOSE, popUpCloseHandler);
+				PopUpManager.removePopUp(popUp);
+			}
 		]]>
 	</mx:Script>
 	
-	<!-- TODO: add support to set nullable types to null -->
 	<mx:states>
 		<mx:State name="readonly">
-			<mx:AddChild>
-				<mx:Label width="100%" text="{propertyInfo.value}"/>
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
+				<mx:Label width="{canvasValueHolder.width}" text="{propertyInfo.value}"/>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="writeonly">
-			<mx:AddChild>
-				<mx:Label width="100%" text="[no read access]" color="#ff0000"/>
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
+				<mx:Label width="{canvasValueHolder.width}" text="[no read access]" color="#ff0000"/>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="boolean">
-			<mx:AddChild>
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:ComboBox id="cmbBooleanValue" width="100%" height="100%"
 					selectedIndex="{propertyInfo.value ? 0 : 1}"
 					change="value = cmbBooleanValue.selectedIndex == 0 ? true : false"
@@ -65,52 +80,45 @@
 		</mx:State>
 		<!-- TODO: make step size on 'number' and 'int' adjustable -->
 		<mx:State name="number">
-			<mx:AddChild>
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:NumericStepper id="stpNumberValue" width="100%" value="{Number(propertyInfo.value)}"
 					stepSize="0.1" minimum="-2147483648" maximum="2147483648"
 					change="value = stpNumberValue.value"/>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="int"><!-- TODO: represent with a NumericStepper -->
-			<mx:AddChild>
+		<mx:State name="int">
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:NumericStepper id="stpIntValue" width="100%" value="{int(propertyInfo.value)}"
 					minimum="-2147483648" maximum="2147483648"
 					change="value = stpIntValue.value"/>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="object">
-			<!-- TODO: add ObjectUtil.toString(value) window with an initiator icon -->
-			<mx:AddChild>
-				<mx:Label width="100%" text="{propertyInfo.value}"/>
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
+				<mx:Label width="{canvasValueHolder.width}" text="{propertyInfo.value}"/>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="string">
-			<mx:AddChild>
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:TextInput id="txtStringValue" width="100%" text="{propertyInfo.value}"
 					change="value = txtStringValue.text"/>
 			</mx:AddChild>
 		</mx:State>
+		<!-- TODO: after adding styles, implement these types (determine them in ClassUtil) -->
 		<!--<mx:State name="Color">
-			<mx:AddChild>
-				<mx:Label width="100%" text="{propertyInfo.value}"/>
-			</mx:AddChild>
 		</mx:State>
 		<mx:State name="FontName">
-			<mx:AddChild>
-				<mx:Label width="100%" text="{propertyInfo.value}"/>
-			</mx:AddChild>
 		</mx:State>
 		<mx:State name="List">
-			<mx:AddChild>
-				<mx:Label width="100%" text="{propertyInfo.value}"/>
-			</mx:AddChild>
-		</mx:State>
-		<mx:State name="int">
-			<mx:AddChild>
-				<mx:TextInput id="txtIntValue" width="100%" text="{propertyInfo.value}"
-					change="value = txtIntValue.text"/>
-			</mx:AddChild>
-		</mx:State> -->
+		</mx:State>-->
 	</mx:states>
+	
+	<mx:HBox id="boxEditor" width="100%" height="22" verticalAlign="middle" horizontalGap="2">
+		<mx:Image id="imgBindable" source="@Embed('../assets/b.png')" toolTip="Bindable"
+			visible="{propertyInfo.bindable}"/>
+		<mx:Image id="imgDescribe" source="@Embed('../assets/magnifier.png')" toolTip="Describe"
+			buttonMode="true" click="imgDescribeClickHandler()" visible="{propertyInfo.access != 'writeonly'}"/>
+		<mx:Canvas id="canvasValueHolder" width="100%"/>
+	</mx:HBox>
 	
 </mx:Canvas>

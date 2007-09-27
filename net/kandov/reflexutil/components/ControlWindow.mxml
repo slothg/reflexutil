@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window:SizeableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:window="com.adobe.ColdFusion.components.*"
-	layout="absolute" showCloseButton="true" close="hide()"
+	showCloseButton="true" close="hide()"
 	creationComplete="creationCompleteHandler()">
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.collections.SortField;
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
+			import mx.collections.SortField;
 			import mx.core.Application;
 			import mx.core.UIComponent;
 			import mx.events.ListEvent;
@@ -268,7 +268,7 @@
 					<mx:columns>
 						<mx:DataGridColumn headerText="Property Name" dataField="name"/>
 						<mx:DataGridColumn headerText="Property Value" dataField="value" sortable="false"
-							itemRenderer="{new ClassFactory(PropertyValueEditor)}">
+							itemRenderer="{new ClassFactory(ValueEditor)}">
 						</mx:DataGridColumn>
 					</mx:columns>
 				</mx:DataGrid>

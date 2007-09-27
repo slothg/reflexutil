@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window:SizeableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:window="com.adobe.ColdFusion.components.*"
+	showCloseButton="true" width="300" height="300"
+	title="{ComponentUtil.getUID(propertyInfo.component) + '.' + propertyInfo.name}">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.ObjectUtil;
+			import net.kandov.reflexutil.types.PropertyInfo;
+			import net.kandov.reflexutil.utils.ComponentUtil;
+			
+			[Bindable(event="dataChange")]
+			private function get propertyInfo():PropertyInfo {
+				return PropertyInfo(data);
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:TextArea text="{ObjectUtil.toString(propertyInfo.value, null, ['loaderInfo'])}"
+		editable="false" width="100%" height="100%"/>
+	
+</window:SizeableTitleWindow>
