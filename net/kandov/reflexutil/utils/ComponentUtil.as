@@ -105,20 +105,21 @@ package net.kandov.reflexutil.utils {
 				var propertyInfo:PropertyInfo;
 				
 				for each (property in uniqueProperties) {
-					propertyInfo = new PropertyInfo(component, property.@name, property.@type, property.@access);
+					propertyInfo = new PropertyInfo(component, property.@name, property.@access);
+					
+					if (propertyInfo.access != "writeonly") {
+						BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
+						if (component[propertyInfo.name]) {
+							propertyInfo.value = component[propertyInfo.name];
+							propertyInfo.type = ClassUtil.determineType(propertyInfo.value, property.@type);
+						}
+					}
 					
 					var metadataCollection:XMLList = property["metadata"];
 					for each (var metadata:XML in metadataCollection) {
 						if (metadata.@name == "Bindable") {
 							propertyInfo.bindable = true;
 							break;
-						}
-					}
-					
-					if (propertyInfo.access != "writeonly") {
-						BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
-						if (component[propertyInfo.name]) {
-							propertyInfo.value = component[propertyInfo.name];
 						}
 					}
 					

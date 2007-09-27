@@ -14,17 +14,16 @@ package net.kandov.reflexutil.types {
 		
 		public var component:UIComponent;
 		public var name:String;
-		public var type:String;
 		public var access:String;
-		public var bindable:Boolean;
 		public var value:Object;
+		public var type:String;
+		public var bindable:Boolean;
 		
-		public function PropertyInfo(component:UIComponent, name:String, type:String, access:String) {
+		public function PropertyInfo(component:UIComponent, name:String, access:String) {
 			super();
 			
 			this.component = component;
 			this.name = name;
-			this.type = type;
 			this.access = access;
 		}
 		
@@ -32,10 +31,11 @@ package net.kandov.reflexutil.types {
 			return "[" + ClassUtil.getClassName(this) + " " +
 				"component='" + component + "' " +
 				"name='" + name + "' " +
-				"type='" + type + "' " +
 				"access='" + access + "' " +
-				"bindable='" + bindable + "' " +
-				"value='" + value + "']";
+				"value='" + value + "' " +
+				"type='" + type + "' " +
+				"bindable='" + bindable + "']";
+				
 		}
 		
 		public function equals(anotherObject:Object):Boolean {

@@ -55,13 +55,7 @@
 				<mx:Label width="100%" text="[no read access]" color="#ff0000"/>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="Array">
-			<mx:AddChild>
-				<mx:TextInput id="txtArrayValue" width="100%" text="{propertyInfo.value}"
-					change="value = txtArrayValue.text"/>
-			</mx:AddChild>
-		</mx:State>
-		<mx:State name="Boolean">
+		<mx:State name="boolean">
 			<mx:AddChild>
 				<mx:ComboBox id="cmbBooleanValue" width="100%" height="100%"
 					selectedIndex="{propertyInfo.value ? 0 : 1}"
@@ -69,7 +63,34 @@
 					dataProvider="{[true, false]}"/>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="Color">
+		<!-- TODO: make step size on 'number' and 'int' adjustable -->
+		<mx:State name="number">
+			<mx:AddChild>
+				<mx:NumericStepper id="stpNumberValue" width="100%" value="{Number(propertyInfo.value)}"
+					stepSize="0.1" minimum="-2147483648" maximum="2147483648"
+					change="value = stpNumberValue.value"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="int"><!-- TODO: represent with a NumericStepper -->
+			<mx:AddChild>
+				<mx:NumericStepper id="stpIntValue" width="100%" value="{int(propertyInfo.value)}"
+					minimum="-2147483648" maximum="2147483648"
+					change="value = stpIntValue.value"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="object">
+			<!-- TODO: add ObjectUtil.toString(value) window with an initiator icon -->
+			<mx:AddChild>
+				<mx:Label width="100%" text="{propertyInfo.value}"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="string">
+			<mx:AddChild>
+				<mx:TextInput id="txtStringValue" width="100%" text="{propertyInfo.value}"
+					change="value = txtStringValue.text"/>
+			</mx:AddChild>
+		</mx:State>
+		<!--<mx:State name="Color">
 			<mx:AddChild>
 				<mx:Label width="100%" text="{propertyInfo.value}"/>
 			</mx:AddChild>
@@ -84,30 +105,12 @@
 				<mx:Label width="100%" text="{propertyInfo.value}"/>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="Number">
-			<mx:AddChild>
-				<mx:TextInput id="txtNumberValue" width="100%" text="{propertyInfo.value}"
-					change="value = txtNumberValue.text"/>
-			</mx:AddChild>
-		</mx:State>
-		<mx:State name="int"> <!-- TODO: represent with a NumericStepper -->
+		<mx:State name="int">
 			<mx:AddChild>
 				<mx:TextInput id="txtIntValue" width="100%" text="{propertyInfo.value}"
 					change="value = txtIntValue.text"/>
 			</mx:AddChild>
-		</mx:State>
-		<mx:State name="Object">
-			<!-- TODO: add ObjectUtil.toString(value) window with an initiator icon -->
-			<mx:AddChild>
-				<mx:Label width="100%" text="{propertyInfo.value}"/>
-			</mx:AddChild>
-		</mx:State>
-		<mx:State name="String">
-			<mx:AddChild>
-				<mx:TextInput id="txtStringValue" width="100%" text="{propertyInfo.value}"
-					change="value = txtStringValue.text"/>
-			</mx:AddChild>
-		</mx:State>
+		</mx:State> -->
 	</mx:states>
 	
 </mx:Canvas>
