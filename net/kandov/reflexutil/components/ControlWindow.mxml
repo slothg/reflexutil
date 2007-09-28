@@ -249,6 +249,10 @@
 				propertiesInfos.filterFunction = filterPropertiesInfos;
 				propertiesInfos.refresh();
 			}
+			
+			private function btnRefreshPropertiesInfosClickHandler():void {
+				propertiesInfos = ComponentUtil.generatePropertiesInfos(selectedComponentInfo.component);
+			}
 		]]>
 	</mx:Script>
 	
@@ -260,8 +264,14 @@
 				itemRollOver="hoveredComponentInfo = ComponentInfo(event.itemRenderer.data)"
 				itemRollOut="hoveredComponentInfo = null"/>
 			<mx:VBox width="100%" height="70%">
-				<mx:TextInput id="txtPropertiesFilter" width="100%" change="txtFilterPropertiesChangeHandler()"/>
-				<!-- FIXME: after selecting a combobox boolean value, scroller is buggy -->
+				<mx:HBox width="100%" horizontalGap="2">
+					<mx:Label text="Filter:"/>
+					<mx:TextInput id="txtPropertiesFilter" width="100%"
+						change="txtFilterPropertiesChangeHandler()"/>
+					<mx:Image id="btnRefreshPropertiesInfos" source="@Embed('../assets/refresh.png')"
+						toolTip="Refresh not-bindable properties"
+						buttonMode="true" click="btnRefreshPropertiesInfosClickHandler()"/>
+				</mx:HBox>
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
 					<mx:columns>
 						<mx:DataGridColumn headerText="Property Name" dataField="name"/>

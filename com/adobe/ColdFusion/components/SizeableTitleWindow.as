@@ -35,7 +35,7 @@ package com.adobe.ColdFusion.components
 			// to make getHeaderHeight protected
 			protected static const HEADER_PADDING:Number = 14;
 			
-			private const dragThreshold:int =12;
+			private const dragThreshold:int = 2;
 			// sanity constraints.  
 			private const minSizeWidth:int = 100;  
 			private const minSizeHeight:int = 100;

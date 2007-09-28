@@ -40,7 +40,7 @@ package net.kandov.reflexutil {
 			window.x = -1;
 			window.y = -1;
 			window.width = 400;
-			window.height = 400;
+			window.height = 600;
 		}
 		
 		public function initialized(document:Object, id:String):void {

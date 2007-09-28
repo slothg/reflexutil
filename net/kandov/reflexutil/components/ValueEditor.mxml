@@ -57,6 +57,16 @@
 		]]>
 	</mx:Script>
 	
+	<mx:Style>
+		.stepperSensitivityButton {
+			corner-radius:0;
+			border-style:none;
+			font-size:8;
+			padding-left:0;
+			padding-right:0;
+		}
+	</mx:Style>
+	
 	<mx:states>
 		<mx:State name="readonly">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
@@ -70,18 +80,28 @@
 		</mx:State>
 		<mx:State name="boolean">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:ComboBox id="cmbBooleanValue" width="100%" height="100%"
-					selectedIndex="{propertyInfo.value ? 0 : 1}"
-					change="value = cmbBooleanValue.selectedIndex == 0 ? true : false"
-					dataProvider="{[true, false]}"/>
+				<mx:HBox horizontalGap="2">
+					<mx:CheckBox id="chkBooleanValue" selected="{propertyInfo.value}"
+						change="value = chkBooleanValue.selected"/>
+					<mx:Label text="{propertyInfo.value}"/>
+				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
-		<!-- TODO: make step size on 'number' and 'int' adjustable -->
 		<mx:State name="number">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:NumericStepper id="stpNumberValue" width="100%" value="{Number(propertyInfo.value)}"
-					stepSize="0.1" minimum="-2147483648" maximum="2147483648"
-					change="value = stpNumberValue.value"/>
+				<mx:HBox width="100%" horizontalGap="0">
+					<mx:NumericStepper id="stpNumberValue" width="100%" value="{Number(propertyInfo.value)}"
+						minimum="-2147483648" maximum="2147483648"
+						change="value = stpNumberValue.value"/>
+					<mx:VBox height="100%" verticalGap="0">
+						<mx:Button label="1" width="22" height="11" styleName="stepperSensitivityButton"
+							click="stpNumberValue.stepSize = 1" enabled="{stpNumberValue.stepSize != 1}"
+							toolTip="Set step sensitivity to 1"/>
+						<mx:Button label="0.1" width="22" height="11" styleName="stepperSensitivityButton"
+							click="stpNumberValue.stepSize = 0.1" enabled="{stpNumberValue.stepSize != 0.1}"
+							toolTip="Set step sensitivity to 0.1"/>
+					</mx:VBox>
+				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="int">
@@ -114,7 +134,7 @@
 	<mx:HBox id="boxEditor" width="100%" height="22" verticalAlign="middle" horizontalGap="2">
 		<mx:Image id="imgBindable" source="@Embed('../assets/b.png')" toolTip="Bindable"
 			visible="{propertyInfo.bindable}"/>
-		<mx:Image id="imgDescribe" source="@Embed('../assets/magnifier.png')" toolTip="Describe"
+		<mx:Image id="imgDescribe" source="@Embed('../assets/magnifier.png')" toolTip="Watch"
 			buttonMode="true" click="imgDescribeClickHandler()" visible="{propertyInfo.access != 'writeonly'}"/>
 		<mx:Canvas id="canvasValueHolder" width="100%"/>
 	</mx:HBox>
