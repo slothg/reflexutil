@@ -1,4 +1,14 @@
-// Copyright 2006 Adobe Systems Inc.
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2003-2006 Adobe Macromedia Software LLC and its licensors.
+//  All Rights Reserved. The following is Source Code and is subject to all
+//  restrictions on such code as contained in the End User License Agreement
+//  accompanying this product. If you have received this file from a source
+//  other than Adobe, then your use, modification, or distribution of this file
+//  requires the prior written permission of Adobe.
+//
+//  @author Dean Harmon
+////////////////////////////////////////////////////////////////////////////////
 
 package com.adobe.ColdFusion.components
 {
@@ -9,17 +19,26 @@ package com.adobe.ColdFusion.components
 	import mx.logging.Log;
 	import mx.utils.ObjectUtil;
 	import mx.controls.Button;
-	import flash.events.MouseEvent;
+	import flash.events.MouseEvent; 
 	import flash.events.Event;
 	import flash.system.System;
 	import flash.geom.Rectangle;
 	
+	[Event("startResize")]
+	
+	[Event("stopResize")]
+	
 	public class SizeableTitleWindow extends TitleWindow
 	{
-			private const dragThreshold:int = 2;
+			// this is a copy of the const from panel.as (which is now private)
+			// to make it compile in the new versions of the framework until they fix their bug
+			// to make getHeaderHeight protected
+			protected static const HEADER_PADDING:Number = 14;
+			
+			private const dragThreshold:int =12;
 			// sanity constraints.  
-			private const minSizeWidth:int = 180;  
-			private const minSizeHeight:int = 220;
+			private const minSizeWidth:int = 100;  
+			private const minSizeHeight:int = 100;
 			
 			public const cursorSizeNone:int = -1;
 			public const cursorSizeNE:int   = 0;
@@ -101,7 +120,7 @@ package com.adobe.ColdFusion.components
 					} else {
 						return cursorSizeW;
 					}
-				} else if (x >= this.width - dragThreshold)
+				} else if (x >= this.width - dragThreshold -this.getStyle("borderThicknessRight"))
 				{
 					if (y >= 0 && y <= dragThreshold)
 					{
@@ -119,9 +138,9 @@ package com.adobe.ColdFusion.components
 				{
 					return cursorSizeS;
 // if you want to have the "move" style cursor when over the title bar, uncomment the next three lines					
-//				} else if (isTitleBar)
-//				{
-//					return cursorSizeAll;
+				} else if (isTitleBar)
+				{
+					return cursorSizeAll;
 				}
 				return cursorSizeNone;
 			}
@@ -140,12 +159,12 @@ package com.adobe.ColdFusion.components
 			 *  @protected
 			 *  Returns the height of the header.
 			 */
-			protected function getPanelHeaderHeight():Number
+			override protected function getHeaderHeight():Number
 			{
 				var headerHeight:Number = getStyle("headerHeight");
 				
 				if (isNaN(headerHeight))
-					headerHeight = measureHeaderText().height + 20; //HEADER_PADDING;
+					headerHeight = measureHeaderText().height +SizeableTitleWindow.HEADER_PADDING;
 				
 				return headerHeight;
 			}
@@ -186,7 +205,8 @@ package com.adobe.ColdFusion.components
 				{
 					c = cursorSizeAll;
 				} else {
-					c = getCursorStyle(event.localX, event.localY, isTitleBar);
+					c = getCursorStyle(event.currentTarget.mouseX,
+						 event.currentTarget.mouseY, isTitleBar);
 				}
 				
 				// don't switch stuff around if we don't have to
@@ -239,8 +259,11 @@ package com.adobe.ColdFusion.components
 			
 			protected function resizeMoveListener(event:MouseEvent):void
 			{
-				//don't do it twice, the title bar takes care of it, and don't do it if we aren't the the TitleWindow
-				if (event.localY > getPanelHeaderHeight() && event.target is SizeableTitleWindow)  
+				//don't do it twice, the title bar takes care of it,
+				//and don't do it if we aren't the the TitleWindow
+				
+				if (event.currentTarget.mouseY > getHeaderHeight()) //&& 
+					//event.target is SizeableTitleWindow)  
 				{
 					
 					adjustCursor(event, false);
@@ -251,7 +274,8 @@ package com.adobe.ColdFusion.components
 			{
 				// check for the threshholds first,  
 				// if we are within the threshold do our stuff, else call super 
-				var cursorStyle:int = getCursorStyle(event.localX, event.localY, true);
+				var cursorStyle:int = getCursorStyle(event.currentTarget.mouseX, 
+					event.currentTarget.mouseY, true);
 				if (cursorStyle != cursorSizeNone && cursorStyle != cursorSizeAll )
 				{
 					startSizing(cursorStyle, event.stageX, event.stageY);
@@ -264,7 +288,8 @@ package com.adobe.ColdFusion.components
 			{
 				// check for the threshholds first, 
 				// if we are within the threshold do our stuff, else call super 
-				var cursorStyle:int = getCursorStyle(event.localX, event.localY, false);
+				var cursorStyle:int = getCursorStyle(event.currentTarget.mouseX, 
+					event.currentTarget.mouseY, true);
 				if (cursorStyle != cursorSizeNone && cursorStyle != cursorSizeAll)
 				{
 					startSizing(cursorStyle, event.stageX, event.stageY);
@@ -290,6 +315,8 @@ package com.adobe.ColdFusion.components
 		
 				stage.addEventListener(
 					Event.MOUSE_LEAVE, stage_resizeMouseLeaveHandler);
+					
+				this.dispatchEvent(new Event("startResize"));
 			}			
 	
 			protected function stopSizing():void
@@ -306,6 +333,8 @@ package com.adobe.ColdFusion.components
 					Event.MOUSE_LEAVE, stage_resizeMouseLeaveHandler);
 
 				clearCursor();
+				
+				this.dispatchEvent(new Event("stopResize"));
 			}
 			
 			private function sizeWidth(event:MouseEvent):void

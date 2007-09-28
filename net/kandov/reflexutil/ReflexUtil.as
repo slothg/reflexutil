@@ -128,7 +128,7 @@ package net.kandov.reflexutil {
 			customItems.push(menuItem);
 			
 			if (!window.showing) {
-				menuItem = new ContextMenuItem("Open Window");
+				menuItem = new ContextMenuItem("Open ReflexUtil");
 				menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
 					openWindowMenuItemSelectHandler, false, 0, true);
 				contextMenuItems[menuItem] = null;

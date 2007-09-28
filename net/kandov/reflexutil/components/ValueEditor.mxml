@@ -18,8 +18,6 @@
 				try {
 					propertyInfo.component[propertyInfo.name] = value;
 				} catch (error:Error) {
-					//TODO: what to do here?
-					//Alert.show("could not set the inserted value.");
 				}
 			}
 			

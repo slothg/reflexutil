@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window:SizeableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:window="com.adobe.ColdFusion.components.*"
-	showCloseButton="true" close="hide()"
+	showCloseButton="true" close="hide()" title="ReflexUtil"
 	creationComplete="creationCompleteHandler()">
 	
 	<mx:Script>
@@ -203,7 +203,7 @@
 			}
 			
 			private function filterPropertiesInfos(item:Object):Boolean {
-				var propertyName:String = PropertyInfo(item).name.toLocaleLowerCase();
+				var propertyName:String = PropertyInfo(item).name.toLowerCase();
 				var filterString:String = txtPropertiesFilter.text.toLowerCase();
 				
 				return propertyName.indexOf(filterString) == -1 ? false : true;
@@ -261,9 +261,7 @@
 				itemRollOut="hoveredComponentInfo = null"/>
 			<mx:VBox width="100%" height="70%">
 				<mx:TextInput id="txtPropertiesFilter" width="100%" change="txtFilterPropertiesChangeHandler()"/>
-				<!-- FIXME: when scrolling and focusing out scroller, it still scrolls on outside mouse moves -->
-				<!-- FIXME: when using filter, value change is problematic (try 'label' on 'btnTest') -->
-				<!-- TODO: add property watch tab, and icon at itemRenderer to add there property watches -->
+				<!-- FIXME: after selecting a combobox boolean value, scroller is buggy -->
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
 					<mx:columns>
 						<mx:DataGridColumn headerText="Property Name" dataField="name"/>
