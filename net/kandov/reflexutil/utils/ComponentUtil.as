@@ -17,6 +17,10 @@ package net.kandov.reflexutil.utils {
 	
 	public class ComponentUtil {
 		
+		//--------------------------------------------------------------------------
+		// interface
+		//--------------------------------------------------------------------------
+		
 		public static function getHolderComponent(displayObject:DisplayObject):UIComponent {
 			if (displayObject is UIComponent) {
 				return UIComponent(displayObject);
@@ -62,6 +66,10 @@ package net.kandov.reflexutil.utils {
 		}
 		
 		public static function getRootComponentInfo(componentInfo:ComponentInfo):ComponentInfo {
+			if (!componentInfo) {
+				return null;
+			}
+			
 			if (componentInfo.parent) {
 				return getRootComponentInfo(componentInfo.parent);
 			} else {
@@ -128,6 +136,12 @@ package net.kandov.reflexutil.utils {
 			}
 			
 			return propertiesInfos;
+		}
+		
+		public static function updatePropertyInfoNotBindableValue(propertyInfo:PropertyInfo):void {
+			if (!propertyInfo.bindable && propertyInfo.access != "writeonly") {
+				propertyInfo.value = propertyInfo.component[propertyInfo.name];
+			}
 		}
 		
 	}

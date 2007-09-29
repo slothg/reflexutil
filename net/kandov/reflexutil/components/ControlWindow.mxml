@@ -14,6 +14,8 @@
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.managers.SystemManager;
+			
+			import net.kandov.reflexutil.assets.Images;
 			import net.kandov.reflexutil.types.ComponentInfo;
 			import net.kandov.reflexutil.utils.ComponentUtil;
 			import net.kandov.reflexutil.types.PropertyInfo;
@@ -251,7 +253,11 @@
 			}
 			
 			private function btnRefreshPropertiesInfosClickHandler():void {
-				propertiesInfos = ComponentUtil.generatePropertiesInfos(selectedComponentInfo.component);
+				if (propertiesInfos) {
+					for each (var propertyInfo:PropertyInfo in propertiesInfos) {
+						ComponentUtil.updatePropertyInfoNotBindableValue(propertyInfo);
+					}
+				}
 			}
 		]]>
 	</mx:Script>
@@ -268,8 +274,8 @@
 					<mx:Label text="Filter:"/>
 					<mx:TextInput id="txtPropertiesFilter" width="100%"
 						change="txtFilterPropertiesChangeHandler()"/>
-					<mx:Image id="btnRefreshPropertiesInfos" source="@Embed('../assets/refresh.png')"
-						toolTip="Refresh not-bindable properties"
+					<mx:Image id="btnRefreshPropertiesInfos" source="{Images.REFRESH}"
+						toolTip="Refresh all not-bindable properties"
 						buttonMode="true" click="btnRefreshPropertiesInfosClickHandler()"/>
 				</mx:HBox>
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">

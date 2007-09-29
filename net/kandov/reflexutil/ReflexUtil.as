@@ -33,7 +33,8 @@ package net.kandov.reflexutil {
 			_id = UIDUtil.createUID();
 			
 			application = Application(Application.application);
-			application.addEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
+			application.addEventListener(FlexEvent.APPLICATION_COMPLETE,
+				applicationCompleteHandler, false, 0, true);
 			
 			window = new ControlWindow();
 			window.application = application;
@@ -94,17 +95,13 @@ package net.kandov.reflexutil {
 		}
 		
 		//--------------------------------------------------------------------------
-		// private
-		//--------------------------------------------------------------------------
-		
-		//--------------------------------------------------------------------------
 		// handlers
 		//--------------------------------------------------------------------------
 		
 		private function applicationCompleteHandler(event:FlexEvent):void {
 			application.removeEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
 			application.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
-				applicationContextMenuSelectHandler);
+				applicationContextMenuSelectHandler, false, 0, true);
 		}
 		
 		private function applicationContextMenuSelectHandler(event:ContextMenuEvent):void {

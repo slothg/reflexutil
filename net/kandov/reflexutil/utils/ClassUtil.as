@@ -5,6 +5,10 @@ package net.kandov.reflexutil.utils {
 	
 	public class ClassUtil {
 		
+		//--------------------------------------------------------------------------
+		// interface
+		//--------------------------------------------------------------------------
+		
 		public static function getClassName(object:Object):String {
 	        var name:String = getQualifiedClassName(object);
 	        

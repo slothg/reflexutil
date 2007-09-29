@@ -1,4 +1,4 @@
-package net.kandov.reflexutil.utils {
+package net.kandov.reflexutil.types {
 	
 	public interface IComparable {
 		

@@ -1,23 +1,40 @@
 package net.kandov.reflexutil.types {
 	
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
 	import mx.core.UIComponent;
 	
 	import net.kandov.reflexutil.utils.ClassUtil;
-	import net.kandov.reflexutil.utils.IComparable;
+	
+	[Event(type="flash.events.Event", name="valueChanged")]
 	
 	[Bindable]
 	public class PropertyInfo
 	extends EventDispatcher
 	implements IComparable {
 		
+		public static const VALUE_CHANGED:String = "valueChanged";
+		
 		public var component:UIComponent;
 		public var name:String;
 		public var access:String;
-		public var value:Object;
 		public var type:String;
 		public var bindable:Boolean;
+		
+		private var _value:Object;
+		
+		[Bindable(event="valueChanged")]
+		public function get value():Object {
+			return _value;
+		}
+		
+		public function set value(newValue:Object):void {
+			if (_value != newValue) {
+				_value = newValue;
+				dispatchEvent(new Event(VALUE_CHANGED));
+			}
+		}
 		
 		public function PropertyInfo(component:UIComponent, name:String, access:String) {
 			super();
@@ -32,9 +49,9 @@ package net.kandov.reflexutil.types {
 				"component='" + component + "' " +
 				"name='" + name + "' " +
 				"access='" + access + "' " +
-				"value='" + value + "' " +
 				"type='" + type + "' " +
-				"bindable='" + bindable + "']";
+				"bindable='" + bindable + "' " +
+				"value='" + value + "']";
 				
 		}
 		

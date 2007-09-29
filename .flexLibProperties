@@ -3,6 +3,7 @@
   <includeClasses>
     <classEntry path="com.adobe.ColdFusion.components.SizeableTitleWindow"/>
     <classEntry path="net.kandov.reflexutil.components.ValueDescriptor"/>
+    <classEntry path="net.kandov.reflexutil.assets.Images"/>
     <classEntry path="net.kandov.reflexutil.ReflexUtil"/>
   </includeClasses>
   <includeResources/>

@@ -7,7 +7,12 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.core.UIComponent;
+			
 			import net.kandov.reflexutil.utils.ComponentUtil;
+			
+			//--------------------------------------------------------------------------
+			// interface
+			//--------------------------------------------------------------------------
 			
 			public function show(component:UIComponent):void {
 				visible = true;

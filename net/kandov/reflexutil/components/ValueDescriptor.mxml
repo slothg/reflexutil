@@ -6,18 +6,67 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Image;
 			import mx.utils.ObjectUtil;
+			
+			import net.kandov.reflexutil.assets.Images;
 			import net.kandov.reflexutil.types.PropertyInfo;
 			import net.kandov.reflexutil.utils.ComponentUtil;
+			
+			private var imgValueChange:Image;
+			
+			//--------------------------------------------------------------------------
+			// protected
+			//--------------------------------------------------------------------------
+			
+			override protected function createChildren():void {
+				super.createChildren();
+				
+				imgValueChange = new Image();
+				if (propertyInfo.bindable) {
+					imgValueChange.id = "btnBindable";
+					imgValueChange.source = Images.BINDABLE;
+					imgValueChange.toolTip = "Bindable (refreshes automatically)";
+				} else {
+					imgValueChange.id = "btnRefresh";
+					imgValueChange.source = Images.REFRESH_SMALL;
+					imgValueChange.toolTip = "Refresh";
+					imgValueChange.buttonMode = true;
+					imgValueChange.addEventListener(MouseEvent.CLICK, btnRefreshClickHandler, false, 0, true);
+				}
+				titleBar.addChild(imgValueChange);
+			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				
+				imgValueChange.setActualSize(imgValueChange.getExplicitOrMeasuredWidth(),
+					imgValueChange.getExplicitOrMeasuredHeight());
+				
+				imgValueChange.x = width - imgValueChange.width - 30;
+				imgValueChange.y = 6;
+			}
+			
+			//--------------------------------------------------------------------------
+			// private
+			//--------------------------------------------------------------------------
 			
 			[Bindable(event="dataChange")]
 			private function get propertyInfo():PropertyInfo {
 				return PropertyInfo(data);
 			}
+			
+			//--------------------------------------------------------------------------
+			// handlers
+			//--------------------------------------------------------------------------
+			
+			private function btnRefreshClickHandler(event:MouseEvent):void {
+				ComponentUtil.updatePropertyInfoNotBindableValue(propertyInfo);
+			}
 		]]>
 	</mx:Script>
 	
 	<mx:TextArea text="{ObjectUtil.toString(propertyInfo.value, null, ['loaderInfo'])}"
-		editable="false" width="100%" height="100%"/>
+		width="100%" height="100%" editable="false"/>
 	
 </window:SizeableTitleWindow>

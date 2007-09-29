@@ -24,9 +24,8 @@ package com.adobe.ColdFusion.components
 	import flash.system.System;
 	import flash.geom.Rectangle;
 	
-	[Event("startResize")]
-	
-	[Event("stopResize")]
+	[Event(type="flash.events.Event", name="startResize")]
+	[Event(type="flash.events.Event", name="stopResize")]
 	
 	public class SizeableTitleWindow extends TitleWindow
 	{
@@ -35,7 +34,7 @@ package com.adobe.ColdFusion.components
 			// to make getHeaderHeight protected
 			protected static const HEADER_PADDING:Number = 14;
 			
-			private const dragThreshold:int = 2;
+			private const dragThreshold:int = 4;
 			// sanity constraints.  
 			private const minSizeWidth:int = 100;  
 			private const minSizeHeight:int = 100;
@@ -137,10 +136,10 @@ package com.adobe.ColdFusion.components
 				} else if (y >= this.height - dragThreshold)
 				{
 					return cursorSizeS;
-// if you want to have the "move" style cursor when over the title bar, uncomment the next three lines					
-				} else if (isTitleBar)
-				{
-					return cursorSizeAll;
+				//if you want to have the "move" style cursor when over the title bar, uncomment the next three lines
+				//} else if (isTitleBar)
+				//{
+				//	return cursorSizeAll;
 				}
 				return cursorSizeNone;
 			}
@@ -221,10 +220,11 @@ package com.adobe.ColdFusion.components
 				
 				switch (c) 
 				{
-// if you want to have the "move" style cursor when over the title bar, uncomment the next three lines					
-//					case cursorSizeAll:
-//						currentCursorID = CursorManager.setCursor(sizeAllCursorSymbol, 2, -10, -10);	
-//						break;
+					//if you want to have the "move" style cursor when over the title bar,
+					//uncomment the next three lines
+					//case cursorSizeAll:
+					//	currentCursorID = CursorManager.setCursor(sizeAllCursorSymbol, 2, -10, -10);	
+					//	break;
 					case cursorSizeE:
 					case cursorSizeW:
 						currentCursorID = CursorManager.setCursor(sizeWECursorSymbol, 2, -10, -11);     
@@ -370,7 +370,7 @@ package com.adobe.ColdFusion.components
 				
 				this.height = tmp;
 				return delta;
-//				return 0;
+				//return 0;
 			}
 
 			private function sizeLeft(event:MouseEvent):int
@@ -386,7 +386,7 @@ package com.adobe.ColdFusion.components
 				
 				this.width = tmp;
 				return delta;
-//				return 0;
+				//return 0;
 			}
 
 			/**
