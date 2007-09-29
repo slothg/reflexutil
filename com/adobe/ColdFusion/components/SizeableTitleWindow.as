@@ -36,8 +36,8 @@ package com.adobe.ColdFusion.components
 			
 			private const dragThreshold:int = 4;
 			// sanity constraints.  
-			private const minSizeWidth:int = 100;  
-			private const minSizeHeight:int = 100;
+			private const minSizeWidth:int = 300;  
+			private const minSizeHeight:int = 200;
 			
 			public const cursorSizeNone:int = -1;
 			public const cursorSizeNE:int   = 0;

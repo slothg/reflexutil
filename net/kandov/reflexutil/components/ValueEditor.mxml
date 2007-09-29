@@ -72,6 +72,8 @@
 					
 					propertyInfo.addEventListener(PropertyInfo.VALUE_CHANGED,
 						propertyInfoValueChangedHandler, false, 0, true);
+					
+					dispatchEvent(new Event(VALUE_CHANGED));
 				}
 			}
 			
@@ -189,6 +191,7 @@
 	</mx:states>
 	
 	<mx:HBox id="boxEditor" width="100%" minHeight="22" verticalAlign="middle" horizontalGap="2">
+		<mx:Canvas id="canvasValueHolder" width="100%"/>
 		<mx:Image id="imgBindable" source="{Images.BINDABLE}" toolTip="Bindable (refreshes automatically)"
 			visible="{propertyInfo.bindable}" includeInLayout="{propertyInfo.bindable}"/>
 		<mx:Image id="imgRefresh" source="{Images.REFRESH_SMALL}" toolTip="Refresh"
@@ -198,7 +201,6 @@
 		<mx:Image id="imgDescribe" source="{Images.WATCH}" toolTip="Watch"
 			buttonMode="true" click="imgDescribeClickHandler()"
 			visible="{propertyInfo.access != 'writeonly'}"/>
-		<mx:Canvas id="canvasValueHolder" width="100%"/>
 	</mx:HBox>
 	
 </mx:Canvas>
