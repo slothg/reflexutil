@@ -138,6 +138,7 @@
 		</mx:State>
 		<mx:State name="boolean">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
+				<!-- TODO: consider using toggle buttons -->
 				<!-- FIXME: using a checkbox and/or a combobox is buggy with datagrid's scroller -->
 				<!--<mx:HBox horizontalGap="2">
 					<mx:CheckBox id="chkBooleanValue" selected="{propertyInfo.value}"
