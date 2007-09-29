@@ -4,6 +4,11 @@
 	showCloseButton="true" close="hide()" title="ReflexUtil"
 	creationComplete="creationCompleteHandler()">
 	
+	<mx:Metadata>
+		[Event(type="flash.events.Event", name="applicationChanged")]
+		[Event(type="flash.events.Event", name="showingChanged")]
+	</mx:Metadata>
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
@@ -255,7 +260,7 @@
 			private function btnRefreshPropertiesInfosClickHandler():void {
 				if (propertiesInfos) {
 					for each (var propertyInfo:PropertyInfo in propertiesInfos) {
-						ComponentUtil.updatePropertyInfoNotBindableValue(propertyInfo);
+						ComponentUtil.updateValueIfNotBindable(propertyInfo);
 					}
 				}
 			}

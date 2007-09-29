@@ -138,7 +138,7 @@ package net.kandov.reflexutil.utils {
 			return propertiesInfos;
 		}
 		
-		public static function updatePropertyInfoNotBindableValue(propertyInfo:PropertyInfo):void {
+		public static function updateValueIfNotBindable(propertyInfo:PropertyInfo):void {
 			if (!propertyInfo.bindable && propertyInfo.access != "writeonly") {
 				propertyInfo.value = propertyInfo.component[propertyInfo.name];
 			}

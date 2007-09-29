@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-	dataChange="dataChangeHandler()">
+	preinitialize="preinitializeHandler()" dataChange="dataChangeHandler()">
+	
+	<mx:Metadata>
+		[Event(type="flash.events.Event", name="valueChanged")]
+	</mx:Metadata>
 	
 	<mx:Script>
 		<![CDATA[
@@ -12,6 +16,8 @@
 			import net.kandov.reflexutil.assets.Images;
 			import net.kandov.reflexutil.types.PropertyInfo;
 			import net.kandov.reflexutil.utils.ComponentUtil;
+			
+			public static const VALUE_CHANGED:String = "valueChanged";
 			
 			private var valueDescriptor:ValueDescriptor;
 			
@@ -30,8 +36,7 @@
 				} catch (error:Error) {
 				}
 				finally {
-					ComponentUtil.updatePropertyInfoNotBindableValue(propertyInfo);
-					dispatchValueChanged();
+					ComponentUtil.updateValueIfNotBindable(propertyInfo);
 				}
 			}
 			
@@ -44,13 +49,13 @@
 				return PropertyInfo(data);
 			}
 			
-			private function dispatchValueChanged():void {
-				dispatchEvent(new Event(PropertyInfo.VALUE_CHANGED));
-			}
-			
 			//--------------------------------------------------------------------------
 			// handlers
 			//--------------------------------------------------------------------------
+			
+			private function preinitializeHandler():void {
+				addEventListener(VALUE_CHANGED, valueChangedHandler, false, 0, true);
+			}
 			
 			private function dataChangeHandler():void {
 				if (propertyInfo) {
@@ -70,12 +75,17 @@
 				}
 			}
 			
+			private function valueChangedHandler(event:Event):void {
+				//TODO: add hint to show that the property value updated,
+				//(maybe yellow bgcolor) and vanish it in some way...
+			}
+			
 			private function propertyInfoValueChangedHandler(event:Event):void {
-				dispatchValueChanged();
+				dispatchEvent(new Event(VALUE_CHANGED));
 			}
 			
 			private function imgRefreshClickHandler():void {
-				ComponentUtil.updatePropertyInfoNotBindableValue(propertyInfo);
+				ComponentUtil.updateValueIfNotBindable(propertyInfo);
 			}
 			
 			private function imgDescribeClickHandler():void {
@@ -126,7 +136,7 @@
 		</mx:State>
 		<mx:State name="boolean">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<!-- FIXME: -->
+				<!-- FIXME: using a checkbox and/or a combobox is buggy with datagrid's scroller -->
 				<!--<mx:HBox horizontalGap="2">
 					<mx:CheckBox id="chkBooleanValue" selected="{propertyInfo.value}"
 						change="value = chkBooleanValue.selected"/> -->

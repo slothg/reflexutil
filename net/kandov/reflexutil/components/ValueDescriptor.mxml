@@ -61,7 +61,7 @@
 			//--------------------------------------------------------------------------
 			
 			private function btnRefreshClickHandler(event:MouseEvent):void {
-				ComponentUtil.updatePropertyInfoNotBindableValue(propertyInfo);
+				ComponentUtil.updateValueIfNotBindable(propertyInfo);
 			}
 		]]>
 	</mx:Script>
