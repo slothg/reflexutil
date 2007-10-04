@@ -129,7 +129,7 @@
 			private function set selectedComponentInfo(value:ComponentInfo):void {
 				if (_selectedComponentInfo != value) {
 					if (value) {
-						propertiesInfos = ComponentUtil.generatePropertiesInfos(value.component);
+						propertiesInfos = ComponentUtil.generatePropertiesInfos(value.component, true);
 					} else {
 						propertiesInfos = null;
 					}

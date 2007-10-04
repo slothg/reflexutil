@@ -10,12 +10,15 @@ package net.kandov.reflexutil.utils {
 	import mx.collections.ArrayCollection;
 	import mx.core.Container;
 	import mx.core.UIComponent;
+	import mx.utils.ObjectUtil;
 	
 	import net.kandov.reflexutil.components.ComponentHover;
 	import net.kandov.reflexutil.types.ComponentInfo;
 	import net.kandov.reflexutil.types.PropertyInfo;
 	
 	public class ComponentUtil {
+		
+		private static const MX_INTERNAL_URI:String = "http://www.adobe.com/2006/flex/mx/internal";
 		
 		//--------------------------------------------------------------------------
 		// interface
@@ -41,7 +44,7 @@ package net.kandov.reflexutil.utils {
 			
 			for each (var displayObject:DisplayObject in displayObjects) {
 				var component:UIComponent = getHolderComponent(displayObject);
-				if (component) {
+				if (component && components.indexOf(component) == -1) {
 					components.push(component);
 				}
 			}
@@ -61,7 +64,6 @@ package net.kandov.reflexutil.utils {
 		}
 		
 		public static function getAbsolutePosition(component:UIComponent):Point {
-			//TODO: need to consider padding and gaps values
 			return component.parent.localToGlobal(new Point(component.x, component.y));
 		}
 		
@@ -81,14 +83,33 @@ package net.kandov.reflexutil.utils {
 			var componentInfo:ComponentInfo = new ComponentInfo(
 				component, getUID(component) + " (" + ClassUtil.getClassName(component) + ")");
 			
+			var childComponentInfo:ComponentInfo
+			
 			if (component is Container) {
 				componentInfo.children = new Array();
 				for each (var child:DisplayObject in Container(component).getChildren()) {
 					if (child is UIComponent && !(child is ComponentHover)) {
-						var childComponentInfo:ComponentInfo = generateComponentInfo(UIComponent(child));
+						childComponentInfo = generateComponentInfo(UIComponent(child));
 						childComponentInfo.parent = componentInfo;
 						componentInfo.children.push(childComponentInfo);
 					}
+				}
+			}
+			
+			var propertiesInfos:ArrayCollection = generatePropertiesInfos(component, false);
+			for each (var propertyInfo:PropertyInfo in propertiesInfos) {
+				//TODO: how to make this check abstract?
+				if (propertyInfo.type == "UIComponent" &&
+					propertyInfo.name != "document" && propertyInfo.name != "owner" &&
+					propertyInfo.name != "parentApplication" && propertyInfo.name != "parent" &&
+					propertyInfo.name != "parentDocument") {
+					if (!componentInfo.children) {
+						componentInfo.children = new Array();
+					}
+					
+					childComponentInfo = generateComponentInfo(propertyInfo.component);
+					childComponentInfo.parent = componentInfo;
+					componentInfo.children.push(childComponentInfo);
 				}
 			}
 			
@@ -96,7 +117,7 @@ package net.kandov.reflexutil.utils {
 		}
 		
 		//TODO: add styles as properties and differentiate them from the original properties
-		public static function generatePropertiesInfos(component:UIComponent):ArrayCollection {
+		public static function generatePropertiesInfos(component:UIComponent, bindValues:Boolean):ArrayCollection {
 			var propertiesInfos:ArrayCollection;
 			
 			var properties:XMLList = describeType(component).accessor;
@@ -108,6 +129,12 @@ package net.kandov.reflexutil.utils {
 				}
 			}
 			
+			//TODO: try using the following to get the internal properties (which includes UIComponents)
+			//TODO: maybe need to use the exclude pattern like in use with ObjectUtil.toString()
+			//var classInfo:Object = ObjectUtil.getClassInfo(component, null, {includeReadOnly:true});
+            //var classProperties:Array = classInfo.properties;
+			//var desc:String = ObjectUtil.toString(component, null, ['loaderInfo']);
+			
 			if (uniqueProperties.length() > 0) {
 				propertiesInfos = new ArrayCollection();
 				var propertyInfo:PropertyInfo;
@@ -116,11 +143,14 @@ package net.kandov.reflexutil.utils {
 					propertyInfo = new PropertyInfo(component, property.@name, property.@access);
 					
 					if (propertyInfo.access != "writeonly") {
-						BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
-						if (component[propertyInfo.name]) {
-							propertyInfo.value = component[propertyInfo.name];
-							propertyInfo.type = ClassUtil.determineType(propertyInfo.value, property.@type);
+						//TODO: what is wrong with the 'data' property? how to abstract the solution?
+						if (bindValues && property.@uri != MX_INTERNAL_URI && propertyInfo.name != "data") {
+							BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
 						}
+						if (property.@uri != MX_INTERNAL_URI && component[propertyInfo.name]) {
+							propertyInfo.value = component[propertyInfo.name];
+						}
+						propertyInfo.type = ClassUtil.determineType(propertyInfo.value, property.@type);
 					}
 					
 					var metadataCollection:XMLList = property["metadata"];

@@ -3,6 +3,8 @@ package net.kandov.reflexutil.utils {
 	import flash.utils.describeType;
 	import flash.utils.getQualifiedClassName;
 	
+	import mx.core.UIComponent;
+	
 	public class ClassUtil {
 		
 		//--------------------------------------------------------------------------
@@ -24,7 +26,7 @@ package net.kandov.reflexutil.utils {
 		
 		public static function determineType(value:Object, classType:String):String {
 			if (!value) {
-				return null;
+				return classType;
 			}
 			
 			var type:String = typeof(value);
@@ -38,6 +40,8 @@ package net.kandov.reflexutil.utils {
 			if (type == "object") {
 				if (value is Date) {
 					return "Date";
+				} else if (value is UIComponent) {
+					return "UIComponent";
 				}
 			}
 			
