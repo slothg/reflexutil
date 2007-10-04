@@ -21,7 +21,6 @@ package net.kandov.reflexutil.types {
 			
 			this.component = component;
 			this.label = label;
-			this.children = children;
 		}
 		
 		override public function toString():String {
