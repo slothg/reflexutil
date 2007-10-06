@@ -45,14 +45,7 @@ package net.kandov.reflexutil.types {
 		}
 		
 		override public function toString():String {
-			return "[" + ClassUtil.getClassName(this) + " " +
-				"component='" + component + "' " +
-				"name='" + name + "' " +
-				"access='" + access + "' " +
-				"type='" + type + "' " +
-				"bindable='" + bindable + "' " +
-				"value='" + value + "']";
-				
+			return "[" + ClassUtil.getClassName(this) + " name='" + name + "']";
 		}
 		
 		public function equals(anotherObject:Object):Boolean {

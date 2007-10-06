@@ -7,7 +7,6 @@ package net.kandov.reflexutil.utils {
 	import flash.utils.describeType;
 	
 	import mx.binding.utils.BindingUtils;
-	import mx.collections.ArrayCollection;
 	import mx.core.UIComponent;
 	import mx.core.mx_internal;
 	import mx.utils.ObjectUtil;
@@ -101,12 +100,14 @@ package net.kandov.reflexutil.utils {
 				}
 			}
 			
+			componentInfo.propertiesInfos = generatePropertiesInfos(component);
+			
 			return componentInfo;
 		}
 		
 		//TODO: add styles as properties and differentiate them from the original properties
-		public static function generatePropertiesInfos(component:UIComponent, bindValues:Boolean):ArrayCollection {
-			var propertiesInfos:ArrayCollection;
+		public static function generatePropertiesInfos(component:UIComponent):Array {
+			var propertiesInfos:Array;
 			
 			var properties:XMLList = describeType(component).accessor;
 			var property:XML;
@@ -118,7 +119,7 @@ package net.kandov.reflexutil.utils {
 			}
 			
 			if (uniqueProperties.length() > 0) {
-				propertiesInfos = new ArrayCollection();
+				propertiesInfos = new Array();
 				var propertyInfo:PropertyInfo;
 				
 				for each (property in uniqueProperties) {
@@ -127,7 +128,7 @@ package net.kandov.reflexutil.utils {
 					if (propertyInfo.access != "writeonly") {
 						if (property.@uri != MX_INTERNAL_URI) {
 							//TODO: what is wrong with the 'data' property? how to abstract the solution?
-							if (bindValues && propertyInfo.name != "data") {
+							if (propertyInfo.name != "data") {
 								BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
 							}
 							if (component[propertyInfo.name]) {
@@ -145,7 +146,7 @@ package net.kandov.reflexutil.utils {
 						}
 					}
 					
-					propertiesInfos.addItem(propertyInfo);
+					propertiesInfos.push(propertyInfo);
 				}
 			}
 			

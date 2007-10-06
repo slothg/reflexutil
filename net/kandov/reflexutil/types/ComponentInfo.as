@@ -15,6 +15,7 @@ package net.kandov.reflexutil.types {
 		public var label:String;
 		public var parent:ComponentInfo;
 		public var children:Array;
+		public var propertiesInfos:Array;
 		
 		public function ComponentInfo(component:UIComponent, label:String) {
 			super();
@@ -24,11 +25,7 @@ package net.kandov.reflexutil.types {
 		}
 		
 		override public function toString():String {
-			return "[" + ClassUtil.getClassName(this) + " " +
-				"component='" + component + "' " +
-				"label='" + label + "' " +
-				"parent='" + parent + "' " +
-				"children='" + children + "']";
+			return "[" + ClassUtil.getClassName(this) + " label='" + label + "']";
 		}
 		
 		public function equals(anotherObject:Object):Boolean {

@@ -31,7 +31,7 @@
 			private var _treeComponentsInfosContextMenu:ContextMenu = new ContextMenu();
 			private var _selectedComponentInfo:ComponentInfo;
 			private var _hoveredComponentInfo:ComponentInfo;
-			private var _propertiesInfos:ArrayCollection;
+			private var _propertiesInfos:ArrayCollection = new ArrayCollection();
 			private var alreadyShowed:Boolean;
 			private var componentHover:ComponentHover = new ComponentHover();
 			
@@ -129,9 +129,9 @@
 			private function set selectedComponentInfo(value:ComponentInfo):void {
 				if (_selectedComponentInfo != value) {
 					if (value) {
-						propertiesInfos = ComponentUtil.generatePropertiesInfos(value.component, true);
+						setPropertiesInfosSource(value.propertiesInfos);
 					} else {
-						propertiesInfos = null;
+						setPropertiesInfosSource(null);
 					}
 					
 					_selectedComponentInfo = value;
@@ -164,28 +164,9 @@
 				return _propertiesInfos;
 			}
 			
-			private function set propertiesInfos(value:ArrayCollection):void {
-				if (_propertiesInfos != value) {
-					var sort:Sort;
-					var filter:Function;
-					
-					if (_propertiesInfos) {
-						sort = _propertiesInfos.sort;
-						filter = _propertiesInfos.filterFunction;
-					}
-					
-					if (value) {
-						if (!sort) {
-							sort = new Sort();
-							sort.fields = [new SortField("name")];
-						}
-						
-						value.sort = sort;
-						value.filterFunction = filter;
-						value.refresh();
-					}
-					
-					_propertiesInfos = value;
+			private function setPropertiesInfosSource(source:Array):void {
+				if (_propertiesInfos.source != source) {
+					_propertiesInfos.source = source;
 					dispatchEvent(new Event("propertiesInfosChanged"));
 				}
 			}
@@ -217,7 +198,7 @@
 				var filters:Array = filterString.split("|");
 				var match:Boolean = false;
 				for each (var filter:String in filters) {
-					if (filter.length > 0 && propertyName.indexOf(filter) != -1) {
+					if (propertyName.indexOf(filter) != -1) {
 						match = true;
 					}
 				}
@@ -235,6 +216,13 @@
 				treeComponentsInfosContextMenu.hideBuiltInItems();
 				treeComponentsInfosContextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
 					treeComponentsInfosContextMenuSelectHandler, false, 0, true);
+				
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("name")];
+				propertiesInfos.sort = sort;
+				propertiesInfos.filterFunction = filterPropertiesInfos;
+				propertiesInfos.refresh();
+				dispatchEvent(new Event("propertiesInfosChanged"));
 			}
 			
 			private function treeComponentsInfosMouseMoveHandler(event:MouseEvent):void {
@@ -271,11 +259,6 @@
 				}
 			}
 			
-			private function txtFilterPropertiesChangeHandler():void {
-				propertiesInfos.filterFunction = filterPropertiesInfos;
-				propertiesInfos.refresh();
-			}
-			
 			private function btnRefreshPropertiesInfosClickHandler():void {
 				if (propertiesInfos) {
 					for each (var propertyInfo:PropertyInfo in propertiesInfos) {
@@ -299,7 +282,7 @@
 				<mx:HBox width="100%" horizontalGap="2">
 					<mx:Label text="Filter:"/>
 					<mx:TextInput id="txtPropertiesFilter" width="100%"
-						change="txtFilterPropertiesChangeHandler()"/>
+						change="propertiesInfos.refresh()"/>
 					<mx:Image id="btnRefreshPropertiesInfos" source="{Images.REFRESH}"
 						toolTip="Refresh all not-bindable properties"
 						buttonMode="true" click="btnRefreshPropertiesInfosClickHandler()"/>
