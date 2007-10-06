@@ -78,8 +78,7 @@
 			}
 			
 			private function valueChangedHandler(event:Event):void {
-				//TODO: add hint to show that the property value updated,
-				//(maybe yellow bgcolor) and vanish it in some way...
+				//TODO: add hint to show that the property value updated
 			}
 			
 			private function propertyInfoValueChangedHandler(event:Event):void {
@@ -138,13 +137,11 @@
 		</mx:State>
 		<mx:State name="boolean">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<!-- TODO: consider using toggle buttons -->
-				<!-- FIXME: using a checkbox and/or a combobox is buggy with datagrid's scroller -->
-				<!--<mx:HBox horizontalGap="2">
+				<mx:HBox horizontalGap="2">
 					<mx:CheckBox id="chkBooleanValue" selected="{propertyInfo.value}"
-						change="value = chkBooleanValue.selected"/> -->
+						click="value = chkBooleanValue.selected"/>
 					<mx:Label text="{value}"/>
-				<!--</mx:HBox> -->
+				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="number">

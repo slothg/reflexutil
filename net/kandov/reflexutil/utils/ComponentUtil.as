@@ -9,6 +9,7 @@ package net.kandov.reflexutil.utils {
 	import mx.binding.utils.BindingUtils;
 	import mx.collections.ArrayCollection;
 	import mx.core.UIComponent;
+	import mx.core.mx_internal;
 	import mx.utils.ObjectUtil;
 	
 	import net.kandov.reflexutil.components.ComponentHover;
@@ -38,8 +39,8 @@ package net.kandov.reflexutil.utils {
 		public static function getComponentsUnderMouse(container:DisplayObjectContainer):Array {
 			var components:Array = new Array;
 			
-			var globalMousePoint:Point = container.localToGlobal(new Point(container.mouseX, container.mouseY));
-			var displayObjects:Array = container.getObjectsUnderPoint(globalMousePoint);
+			var displayObjects:Array = container.getObjectsUnderPoint(
+				new Point(container.stage.mouseX, container.stage.mouseY));
 			
 			for each (var displayObject:DisplayObject in displayObjects) {
 				var component:UIComponent = getHolderComponent(displayObject);
@@ -63,7 +64,8 @@ package net.kandov.reflexutil.utils {
 		}
 		
 		public static function getAbsolutePosition(component:UIComponent):Point {
-			return component.parent.localToGlobal(new Point(component.x, component.y));
+			var nativeParent:DisplayObjectContainer = component.mx_internal::$parent;
+			return nativeParent.localToGlobal(new Point(component.x, component.y));
 		}
 		
 		public static function getRootComponentInfo(componentInfo:ComponentInfo):ComponentInfo {

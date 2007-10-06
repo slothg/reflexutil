@@ -214,7 +214,15 @@
 				var propertyName:String = PropertyInfo(item).name.toLowerCase();
 				var filterString:String = txtPropertiesFilter.text.toLowerCase();
 				
-				return propertyName.indexOf(filterString) == -1 ? false : true;
+				var filters:Array = filterString.split("|");
+				var match:Boolean = false;
+				for each (var filter:String in filters) {
+					if (filter.length > 0 && propertyName.indexOf(filter) != -1) {
+						match = true;
+					}
+				}
+				
+				return match;
 			}
 			
 			//--------------------------------------------------------------------------
