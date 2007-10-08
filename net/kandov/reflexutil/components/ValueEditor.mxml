@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" currentState="default"
 	preinitialize="preinitializeHandler()" dataChange="dataChangeHandler()">
 	
 	<mx:Metadata>
@@ -59,15 +59,18 @@
 			
 			private function dataChangeHandler():void {
 				if (propertyInfo) {
-					if (propertyInfo.access == "readwrite") {
+					if (propertyInfo.name == "systemManager") {
+						trace(); //TODO: why currentState=Number?
+					}
+					if (propertyInfo.access == "writeonly") {
+						currentState = "writeonly";
+					} else {
 						for each (var state:State in states) {
 							if (state.name == propertyInfo.type) {
 								currentState = state.name;
 								break;
 							}
 						}
-					} else {
-						currentState = propertyInfo.access;
 					}
 					
 					propertyInfo.addEventListener(PropertyInfo.VALUE_CHANGED,
@@ -125,7 +128,7 @@
 	</mx:Style>
 	
 	<mx:states>
-		<mx:State name="readonly">
+		<mx:State name="default">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:Label width="{canvasValueHolder.width}" text="{value}"/>
 			</mx:AddChild>
@@ -135,7 +138,7 @@
 				<mx:Label width="{canvasValueHolder.width}" text="[no read access]" color="#ff0000"/>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="boolean">
+		<mx:State name="Boolean">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:HBox horizontalGap="2">
 					<mx:CheckBox id="chkBooleanValue" selected="{propertyInfo.value}"
@@ -144,7 +147,7 @@
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="number">
+		<mx:State name="Number">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:HBox width="100%" horizontalGap="0">
 					<mx:NumericStepper id="stpNumberValue" width="100%" value="{Number(value)}"
@@ -168,19 +171,16 @@
 					change="value = stpIntValue.value"/>
 			</mx:AddChild>
 		</mx:State>
-		<mx:State name="object">
-			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:Label width="{canvasValueHolder.width}" text="{value}"/>
-			</mx:AddChild>
-		</mx:State>
-		<mx:State name="string">
+		<mx:State name="String">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:TextInput id="txtStringValue" width="100%" text="{value}"
 					change="value = txtStringValue.text"/>
 			</mx:AddChild>
 		</mx:State>
 		<!-- TODO: after adding styles, implement these types (determine them in ClassUtil) -->
-		<!--<mx:State name="Color">
+		<!--<mx:State name="Array">
+		</mx:State>
+		<mx:State name="Color">
 		</mx:State>
 		<mx:State name="FontName">
 		</mx:State>
@@ -189,7 +189,7 @@
 	</mx:states>
 	
 	<mx:HBox id="boxEditor" width="100%" minHeight="22" verticalAlign="middle" horizontalGap="2">
-		<mx:Canvas id="canvasValueHolder" width="100%"/>
+		<mx:Canvas id="canvasValueHolder" width="100%" enabled="{propertyInfo.access != 'readonly'}"/>
 		<mx:Image id="imgBindable" source="{Images.BINDABLE}" toolTip="Bindable (refreshes automatically)"
 			visible="{propertyInfo.bindable}" includeInLayout="{propertyInfo.bindable}"/>
 		<mx:Image id="imgRefresh" source="{Images.REFRESH_SMALL}" toolTip="Refresh"

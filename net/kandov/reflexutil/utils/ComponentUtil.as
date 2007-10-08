@@ -123,7 +123,7 @@ package net.kandov.reflexutil.utils {
 				var propertyInfo:PropertyInfo;
 				
 				for each (property in uniqueProperties) {
-					propertyInfo = new PropertyInfo(component, property.@name, property.@access);
+					propertyInfo = new PropertyInfo(component, property.@name, property.@type, property.@access);
 					
 					if (propertyInfo.access != "writeonly") {
 						if (property.@uri != MX_INTERNAL_URI) {
@@ -135,7 +135,6 @@ package net.kandov.reflexutil.utils {
 								propertyInfo.value = component[propertyInfo.name];
 							}
 						}
-						propertyInfo.type = ClassUtil.determineType(propertyInfo.value, property.@type);
 					}
 					
 					var metadataCollection:XMLList = property["metadata"];

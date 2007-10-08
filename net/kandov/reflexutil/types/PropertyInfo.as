@@ -18,8 +18,8 @@ package net.kandov.reflexutil.types {
 		
 		public var component:UIComponent;
 		public var name:String;
-		public var access:String;
 		public var type:String;
+		public var access:String;
 		public var bindable:Boolean;
 		
 		private var _value:Object;
@@ -36,11 +36,12 @@ package net.kandov.reflexutil.types {
 			}
 		}
 		
-		public function PropertyInfo(component:UIComponent, name:String, access:String) {
+		public function PropertyInfo(component:UIComponent, name:String, type:String, access:String) {
 			super();
 			
 			this.component = component;
 			this.name = name;
+			this.type = type;
 			this.access = access;
 		}
 		
