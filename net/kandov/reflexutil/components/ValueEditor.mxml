@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" currentState="default"
-	preinitialize="preinitializeHandler()" dataChange="dataChangeHandler()">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	creationComplete="creationCompleteHandler()" dataChange="dataChangeHandler()">
 	
 	<mx:Metadata>
 		[Event(type="flash.events.Event", name="valueChanged")]
@@ -53,15 +53,13 @@
 			// handlers
 			//--------------------------------------------------------------------------
 			
-			private function preinitializeHandler():void {
+			private function creationCompleteHandler():void {
 				addEventListener(VALUE_CHANGED, valueChangedHandler, false, 0, true);
 			}
 			
 			private function dataChangeHandler():void {
 				if (propertyInfo) {
-					if (propertyInfo.name == "systemManager") {
-						trace(); //TODO: why currentState=Number?
-					}
+					currentState = "default";
 					if (propertyInfo.access == "writeonly") {
 						currentState = "writeonly";
 					} else {
