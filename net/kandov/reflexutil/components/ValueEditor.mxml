@@ -34,6 +34,7 @@
 				try {
 					propertyInfo.component[propertyInfo.name] = value;
 				} catch (error:Error) {
+					//cannot set value to component's property
 				}
 				finally {
 					ComponentUtil.updateValueIfNotBindable(propertyInfo);

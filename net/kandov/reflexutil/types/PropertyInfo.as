@@ -14,12 +14,15 @@ package net.kandov.reflexutil.types {
 	extends EventDispatcher
 	implements IComparable {
 		
+		public static const URI_MX_INTERNAL:String = "http://www.adobe.com/2006/flex/mx/internal";
+		
 		public static const VALUE_CHANGED:String = "valueChanged";
 		
 		public var component:UIComponent;
 		public var name:String;
 		public var type:String;
 		public var access:String;
+		public var uri:String;
 		public var bindable:Boolean;
 		
 		private var _value:Object;
@@ -36,13 +39,14 @@ package net.kandov.reflexutil.types {
 			}
 		}
 		
-		public function PropertyInfo(component:UIComponent, name:String, type:String, access:String) {
+		public function PropertyInfo(component:UIComponent, name:String, type:String, access:String, uri:String) {
 			super();
 			
 			this.component = component;
 			this.name = name;
 			this.type = type;
 			this.access = access;
+			this.uri = uri;
 		}
 		
 		override public function toString():String {

@@ -17,8 +17,6 @@ package net.kandov.reflexutil.utils {
 	
 	public class ComponentUtil {
 		
-		private static const MX_INTERNAL_URI:String = "http://www.adobe.com/2006/flex/mx/internal";
-		
 		//--------------------------------------------------------------------------
 		// interface
 		//--------------------------------------------------------------------------
@@ -123,25 +121,29 @@ package net.kandov.reflexutil.utils {
 				var propertyInfo:PropertyInfo;
 				
 				for each (property in uniqueProperties) {
-					propertyInfo = new PropertyInfo(component, property.@name, property.@type, property.@access);
-					
-					if (propertyInfo.access != "writeonly") {
-						if (property.@uri != MX_INTERNAL_URI) {
-							//TODO: what is wrong with the 'data' property? how to abstract the solution?
-							if (propertyInfo.name != "data") {
-								BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
-							}
-							if (component[propertyInfo.name]) {
-								propertyInfo.value = component[propertyInfo.name];
-							}
-						}
-					}
+					propertyInfo = new PropertyInfo(
+						component, property.@name, property.@type, property.@access, property.@uri);
 					
 					var metadataCollection:XMLList = property["metadata"];
 					for each (var metadata:XML in metadataCollection) {
 						if (metadata.@name == "Bindable") {
 							propertyInfo.bindable = true;
 							break;
+						}
+					}
+					
+					if (propertyInfo.access != "writeonly" && propertyInfo.uri != PropertyInfo.URI_MX_INTERNAL) {
+						try {
+							if (component[propertyInfo.name]) {
+								propertyInfo.value = component[propertyInfo.name];
+							}
+							if (propertyInfo.bindable && propertyInfo.name != "data") {
+								//FIXME: data property causes stack overflow exception which is not catched
+								BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
+							}
+						} catch (error:Error) {
+							//cannot get value from component's property
+							propertyInfo.bindable = false;
 						}
 					}
 					
@@ -153,8 +155,13 @@ package net.kandov.reflexutil.utils {
 		}
 		
 		public static function updateValueIfNotBindable(propertyInfo:PropertyInfo):void {
-			if (!propertyInfo.bindable && propertyInfo.access != "writeonly") {
-				propertyInfo.value = propertyInfo.component[propertyInfo.name];
+			if (!propertyInfo.bindable &&
+				propertyInfo.access != "writeonly" && propertyInfo.uri != PropertyInfo.URI_MX_INTERNAL) {
+				try {
+					propertyInfo.value = propertyInfo.component[propertyInfo.name];
+				} catch (error:Error) {
+					//cannot get value from component's property
+				}
 			}
 		}
 		
