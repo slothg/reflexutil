@@ -61,7 +61,8 @@ package net.kandov.reflexutil.types {
 			}
 		}
 		
-		public function PropertyInfo(component:UIComponent, name:String, type:String, access:String, uri:String) {
+		public function PropertyInfo(component:UIComponent, name:String, type:String,
+			access:String = null, uri:String = null) {
 			super();
 			
 			this.component = component;

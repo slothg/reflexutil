@@ -36,6 +36,7 @@ package net.kandov.reflexutil.utils {
 	import net.kandov.reflexutil.components.ComponentHover;
 	import net.kandov.reflexutil.types.ComponentInfo;
 	import net.kandov.reflexutil.types.PropertyInfo;
+	import mx.styles.StyleManager;
 	
 	public class ComponentUtil {
 		
@@ -127,9 +128,15 @@ package net.kandov.reflexutil.utils {
 		
 		//TODO: add styles as properties and differentiate them from the original properties
 		public static function generatePropertiesInfos(component:UIComponent):Array {
-			var propertiesInfos:Array;
+			var propertiesInfos:Array = new Array();
 			
-			var properties:XMLList = describeType(component).accessor;
+			var type:XML = describeType(component);
+			var propertyInfo:PropertyInfo;
+			var value:Object;
+			
+			//get properties
+			
+			var properties:XMLList = type.accessor;
 			var property:XML;
 			var uniqueProperties:XMLList = new XMLList();
 			for each (property in properties) {
@@ -138,10 +145,7 @@ package net.kandov.reflexutil.utils {
 				}
 			}
 			
-			if (uniqueProperties.length() > 0) {
-				propertiesInfos = new Array();
-				var propertyInfo:PropertyInfo;
-				
+			if (uniqueProperties.length() != 0) {
 				for each (property in uniqueProperties) {
 					propertyInfo = new PropertyInfo(
 						component, property.@name, property.@type, property.@access, property.@uri);
@@ -156,15 +160,16 @@ package net.kandov.reflexutil.utils {
 					
 					if (propertyInfo.access != "writeonly" && propertyInfo.uri != PropertyInfo.URI_MX_INTERNAL) {
 						try {
-							if (component[propertyInfo.name]) {
-								propertyInfo.value = component[propertyInfo.name];
+							value = component[propertyInfo.name];
+							if (value) {
+								propertyInfo.value = value;
 							}
 							if (propertyInfo.bindable && propertyInfo.name != "data") {
 								//FIXME: data property causes stack overflow exception which is not catched
 								BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
 							}
 						} catch (error:Error) {
-							//cannot get value from component's property
+							//cannot get value or from component's property
 							propertyInfo.bindable = false;
 						}
 					}
@@ -172,6 +177,68 @@ package net.kandov.reflexutil.utils {
 					propertiesInfos.push(propertyInfo);
 				}
 			}
+			
+			//get styles
+			
+			var styles:XMLList = type.metadata.(attribute("name") == "Style");
+			var style:XML;
+			var uniqueStyles:XMLList = new XMLList();
+			for each (style in styles) {
+				if (!uniqueStyles.contains(style)) {
+					uniqueStyles += style;
+				}
+			}
+			
+			/* EXAMPLE STYLES (All possible keys included)
+			<metadata name="Style">
+			  <arg key="name" value="paddingBottom"/>
+			  <arg key="type" value="Number"/>
+			  <arg key="format" value="Length"/>
+			  <arg key="inherit" value="no"/>
+			</metadata>
+			<metadata name="Style">
+			  <arg key="name" value="textAlign"/>
+			  <arg key="type" value="String"/>
+			  <arg key="enumeration" value="left,center,right"/>
+			  <arg key="inherit" value="yes"/>
+			</metadata>
+			<metadata name="Style">
+			  <arg key="name" value="fillColors"/>
+			  <arg key="type" value="Array"/>
+			  <arg key="arrayType" value="uint"/>
+			  <arg key="format" value="Color"/>
+			  <arg key="inherit" value="no"/>
+			</metadata>
+			 */
+			 
+			if (uniqueStyles.length() != 0) {
+				var styleArgs:Object;
+				for each (style in uniqueStyles) {
+					styleArgs = new Object();
+					for each (var arg:XML in style.arg) {
+						styleArgs[arg.@key] = arg.@value;
+					}
+					
+					propertyInfo = new PropertyInfo(
+						component, styleArgs.name, styleArgs.type);
+					
+						try {
+							value = component.getStyle(styleArgs.name);
+							if (value) {
+								propertyInfo.value = value;
+							}
+							//TODO: how to bind a style?
+							//BindingUtils.bindProperty(propertyInfo, "value", component, ?styleArgs.name?);
+						} catch (error:Error) {
+							//cannot get value from component's style
+						}
+					
+					propertiesInfos.push(propertyInfo);
+				}
+			}
+			
+			//get layout constraints
+			//TODO:
 			
 			return propertiesInfos;
 		}
