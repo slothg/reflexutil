@@ -24,11 +24,7 @@
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-	creationComplete="creationCompleteHandler()" dataChange="dataChangeHandler()">
-	
-	<mx:Metadata>
-		[Event(type="flash.events.Event", name="valueChanged")]
-	</mx:Metadata>
+	dataChange="dataChangeHandler()">
 	
 	<mx:Script>
 		<![CDATA[
@@ -41,28 +37,14 @@
 			import net.kandov.reflexutil.types.PropertyInfo;
 			import net.kandov.reflexutil.utils.ComponentUtil;
 			
-			public static const VALUE_CHANGED:String = "valueChanged";
-			
 			private var valueDescriptor:ValueDescriptor;
 			
 			//--------------------------------------------------------------------------
 			// interface
 			//--------------------------------------------------------------------------
 			
-			[Bindable(event="valueChanged")]
-			public function get value():Object {
-				return propertyInfo.value;
-			}
-			
 			public function set value(value:Object):void {
-				try {
-					propertyInfo.component[propertyInfo.name] = value;
-				} catch (error:Error) {
-					//cannot set value to component's property
-				}
-				finally {
-					ComponentUtil.updateValueIfNotBindable(propertyInfo);
-				}
+				ComponentUtil.setPropertyValue(propertyInfo, value);
 			}
 			
 			//--------------------------------------------------------------------------
@@ -77,10 +59,6 @@
 			//--------------------------------------------------------------------------
 			// handlers
 			//--------------------------------------------------------------------------
-			
-			private function creationCompleteHandler():void {
-				addEventListener(VALUE_CHANGED, valueChangedHandler, false, 0, true);
-			}
 			
 			private function dataChangeHandler():void {
 				if (propertyInfo) {
@@ -98,21 +76,15 @@
 					
 					propertyInfo.addEventListener(PropertyInfo.VALUE_CHANGED,
 						propertyInfoValueChangedHandler, false, 0, true);
-					
-					dispatchEvent(new Event(VALUE_CHANGED));
 				}
 			}
 			
-			private function valueChangedHandler(event:Event):void {
+			private function propertyInfoValueChangedHandler(event:Event):void {
 				//TODO: add hint to show that the property value updated
 			}
 			
-			private function propertyInfoValueChangedHandler(event:Event):void {
-				dispatchEvent(new Event(VALUE_CHANGED));
-			}
-			
 			private function imgRefreshClickHandler():void {
-				ComponentUtil.updateValueIfNotBindable(propertyInfo);
+				ComponentUtil.getPropertyValue(propertyInfo);
 			}
 			
 			private function imgDescribeClickHandler():void {
@@ -153,7 +125,7 @@
 	<mx:states>
 		<mx:State name="default">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:Label width="{canvasValueHolder.width}" text="{value}"/>
+				<mx:Label width="{canvasValueHolder.width}" text="{propertyInfo.value}"/>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="writeonly">
@@ -166,14 +138,14 @@
 				<mx:HBox horizontalGap="2">
 					<mx:CheckBox id="chkBooleanValue" selected="{propertyInfo.value}"
 						click="value = chkBooleanValue.selected"/>
-					<mx:Label text="{value}"/>
+					<mx:Label text="{propertyInfo.value}"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="Number">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
 				<mx:HBox width="100%" horizontalGap="0">
-					<mx:NumericStepper id="stpNumberValue" width="100%" value="{Number(value)}"
+					<mx:NumericStepper id="stpNumberValue" width="100%" value="{Number(propertyInfo.value)}"
 						minimum="-2147483648" maximum="2147483648"
 						change="value = stpNumberValue.value"/>
 					<mx:VBox height="100%" verticalGap="0">
@@ -189,29 +161,45 @@
 		</mx:State>
 		<mx:State name="int">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:NumericStepper id="stpIntValue" width="100%" value="{int(value)}"
+				<mx:NumericStepper id="stpIntValue" width="100%" value="{int(propertyInfo.value)}"
 					minimum="-2147483648" maximum="2147483648"
 					change="value = stpIntValue.value"/>
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="String">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:TextInput id="txtStringValue" width="100%" text="{value}"
+				<mx:TextInput id="txtStringValue" width="100%" text="{propertyInfo.value}"
 					change="value = txtStringValue.text"/>
 			</mx:AddChild>
 		</mx:State>
-		<!-- TODO: after adding styles, implement these types (determine them in ClassUtil) -->
-		<!--<mx:State name="Array">
+		<mx:State name="Enumeration">
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
+				<!-- FIXME: for some reason, the outer scroll is affected by this component -->
+				<mx:ComboBox id="cmbArrayValue" width="100%"
+					dataProvider="{propertyInfo.enumeration}"
+					selectedIndex="{propertyInfo.enumeration.indexOf(propertyInfo.value)}"
+					change="value = cmbArrayValue.selectedItem"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="Array">
+			<!-- TODO: open an editor window for the array items collection -->
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
+				<mx:TextInput id="txtArrayValue" width="100%" text="{propertyInfo.value}"
+					focusOut="value = txtArrayValue.text"/>
+			</mx:AddChild>
 		</mx:State>
 		<mx:State name="Color">
+			<!-- TODO: open a color picker dialog -->
+			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
+				<mx:TextInput id="txtColorValue" width="100%" text="{propertyInfo.value}"
+					change="value = txtColorValue.text"/>
+			</mx:AddChild>
 		</mx:State>
-		<mx:State name="FontName">
-		</mx:State>
-		<mx:State name="List">
-		</mx:State>-->
 	</mx:states>
 	
-	<mx:HBox id="boxEditor" width="100%" minHeight="22" verticalAlign="middle" horizontalGap="2">
+	<!-- TODO: finde a better way to differentiate the styles (currently - backgroundColor) -->
+	<mx:HBox id="boxEditor" width="100%" minHeight="22" verticalAlign="middle" horizontalGap="2"
+		backgroundColor="{propertyInfo.isStyle ? 16777113 : 16777215}">
 		<mx:Canvas id="canvasValueHolder" width="100%" enabled="{propertyInfo.access != 'readonly'}"/>
 		<mx:Image id="imgBindable" source="{Images.BINDABLE}" toolTip="Bindable (refreshes automatically)"
 			visible="{propertyInfo.bindable}" includeInLayout="{propertyInfo.bindable}"/>

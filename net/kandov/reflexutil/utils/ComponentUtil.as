@@ -31,14 +31,17 @@ package net.kandov.reflexutil.utils {
 	import mx.binding.utils.BindingUtils;
 	import mx.core.UIComponent;
 	import mx.core.mx_internal;
+	import mx.styles.StyleManager;
 	import mx.utils.ObjectUtil;
 	
 	import net.kandov.reflexutil.components.ComponentHover;
 	import net.kandov.reflexutil.types.ComponentInfo;
 	import net.kandov.reflexutil.types.PropertyInfo;
-	import mx.styles.StyleManager;
 	
 	public class ComponentUtil {
+		
+		//TODO: examine all format types
+		public static const CUSTOM_FORMAT_TYPES:Array = ["Color"];
 		
 		//--------------------------------------------------------------------------
 		// interface
@@ -126,7 +129,6 @@ package net.kandov.reflexutil.utils {
 			return componentInfo;
 		}
 		
-		//TODO: add styles as properties and differentiate them from the original properties
 		public static function generatePropertiesInfos(component:UIComponent):Array {
 			var propertiesInfos:Array = new Array();
 			
@@ -148,7 +150,7 @@ package net.kandov.reflexutil.utils {
 			if (uniqueProperties.length() != 0) {
 				for each (property in uniqueProperties) {
 					propertyInfo = new PropertyInfo(
-						component, property.@name, property.@type, property.@access, property.@uri);
+						component, property.@name, property.@type, false, property.@access, property.@uri);
 					
 					var metadataCollection:XMLList = property["metadata"];
 					for each (var metadata:XML in metadataCollection) {
@@ -158,18 +160,15 @@ package net.kandov.reflexutil.utils {
 						}
 					}
 					
-					if (propertyInfo.access != "writeonly" && propertyInfo.uri != PropertyInfo.URI_MX_INTERNAL) {
+					getPropertyValue(propertyInfo);
+					
+					//FIXME: data property causes stack overflow exception which is not catched
+					if (propertyInfo.bindable && propertyInfo.access != "writeonly" &&
+						propertyInfo.uri != PropertyInfo.URI_MX_INTERNAL && propertyInfo.name != "data") {
 						try {
-							value = component[propertyInfo.name];
-							if (value) {
-								propertyInfo.value = value;
-							}
-							if (propertyInfo.bindable && propertyInfo.name != "data") {
-								//FIXME: data property causes stack overflow exception which is not catched
-								BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
-							}
+							BindingUtils.bindProperty(propertyInfo, "value", component, propertyInfo.name);
 						} catch (error:Error) {
-							//cannot get value or from component's property
+							//cannot bind value from component's property
 							propertyInfo.bindable = false;
 						}
 					}
@@ -189,28 +188,6 @@ package net.kandov.reflexutil.utils {
 				}
 			}
 			
-			/* EXAMPLE STYLES (All possible keys included)
-			<metadata name="Style">
-			  <arg key="name" value="paddingBottom"/>
-			  <arg key="type" value="Number"/>
-			  <arg key="format" value="Length"/>
-			  <arg key="inherit" value="no"/>
-			</metadata>
-			<metadata name="Style">
-			  <arg key="name" value="textAlign"/>
-			  <arg key="type" value="String"/>
-			  <arg key="enumeration" value="left,center,right"/>
-			  <arg key="inherit" value="yes"/>
-			</metadata>
-			<metadata name="Style">
-			  <arg key="name" value="fillColors"/>
-			  <arg key="type" value="Array"/>
-			  <arg key="arrayType" value="uint"/>
-			  <arg key="format" value="Color"/>
-			  <arg key="inherit" value="no"/>
-			</metadata>
-			 */
-			 
 			if (uniqueStyles.length() != 0) {
 				var styleArgs:Object;
 				for each (style in uniqueStyles) {
@@ -219,38 +196,62 @@ package net.kandov.reflexutil.utils {
 						styleArgs[arg.@key] = arg.@value;
 					}
 					
-					propertyInfo = new PropertyInfo(
-						component, styleArgs.name, styleArgs.type);
+					propertyInfo = new PropertyInfo(component, styleArgs.name, styleArgs.type, true);
 					
-						try {
-							value = component.getStyle(styleArgs.name);
-							if (value) {
-								propertyInfo.value = value;
-							}
-							//TODO: how to bind a style?
-							//BindingUtils.bindProperty(propertyInfo, "value", component, ?styleArgs.name?);
-						} catch (error:Error) {
-							//cannot get value from component's style
-						}
+					if (styleArgs.hasOwnProperty("enumeration")) {
+						propertyInfo.type = "Enumeration";
+						propertyInfo.enumeration = String(styleArgs.enumeration).split(",");
+					} else if (CUSTOM_FORMAT_TYPES.indexOf(String(styleArgs.format)) != -1) {
+						propertyInfo.type = styleArgs.format;
+					} else {
+						propertyInfo.type = styleArgs.type;
+					}
+					
+					getPropertyValue(propertyInfo);
 					
 					propertiesInfos.push(propertyInfo);
 				}
 			}
 			
 			//get layout constraints
-			//TODO:
+			//TODO: investigate it...
+			propertiesInfos.push(new PropertyInfo(component, "top", "Number", true));
+			propertiesInfos.push(new PropertyInfo(component, "bottom", "Number", true));
+			propertiesInfos.push(new PropertyInfo(component, "left", "Number", true));
+			propertiesInfos.push(new PropertyInfo(component, "right", "Number", true));
+			propertiesInfos.push(new PropertyInfo(component, "horizontalCenter", "Number", true));
+			propertiesInfos.push(new PropertyInfo(component, "verticalCenter", "Number", true));
 			
 			return propertiesInfos;
 		}
 		
-		public static function updateValueIfNotBindable(propertyInfo:PropertyInfo):void {
-			if (!propertyInfo.bindable &&
-				propertyInfo.access != "writeonly" && propertyInfo.uri != PropertyInfo.URI_MX_INTERNAL) {
+		public static function getPropertyValue(propertyInfo:PropertyInfo):void {
+			if (!propertyInfo.bindable) {
 				try {
-					propertyInfo.value = propertyInfo.component[propertyInfo.name];
+					if (propertyInfo.isStyle) {
+						propertyInfo.value = propertyInfo.component.getStyle(propertyInfo.name);
+					} else if (propertyInfo.access != "writeonly" &&
+						propertyInfo.uri != PropertyInfo.URI_MX_INTERNAL) {
+						propertyInfo.value = propertyInfo.component[propertyInfo.name];
+					}
 				} catch (error:Error) {
-					//cannot get value from component's property
+					//cannot get value from component's property or style
 				}
+			}
+		}
+		
+		public static function setPropertyValue(propertyInfo:PropertyInfo, value:Object):void {
+			try {
+				if (propertyInfo.isStyle) {
+					propertyInfo.component.setStyle(propertyInfo.name, value);
+				} else {
+					propertyInfo.component[propertyInfo.name] = value;
+				}
+			} catch (error:Error) {
+				//cannot set value to component's property or style
+			}
+			finally {
+				getPropertyValue(propertyInfo);
 			}
 		}
 		

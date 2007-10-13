@@ -58,6 +58,7 @@
 			private var _propertiesInfos:ArrayCollection = new ArrayCollection();
 			private var alreadyShowed:Boolean;
 			private var componentHover:ComponentHover = new ComponentHover();
+			private var propertiesInfosDefaultSort:Sort = new Sort();
 			
 			//--------------------------------------------------------------------------
 			// interface
@@ -241,9 +242,8 @@
 				treeComponentsInfosContextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
 					treeComponentsInfosContextMenuSelectHandler, false, 0, true);
 				
-				var sort:Sort = new Sort();
-				sort.fields = [new SortField("name")];
-				propertiesInfos.sort = sort;
+				propertiesInfosDefaultSort.fields = [new SortField("name")];
+				propertiesInfos.sort = propertiesInfosDefaultSort;
 				propertiesInfos.filterFunction = filterPropertiesInfos;
 				propertiesInfos.refresh();
 				dispatchEvent(new Event("propertiesInfosChanged"));
@@ -286,7 +286,7 @@
 			private function btnRefreshPropertiesInfosClickHandler():void {
 				if (propertiesInfos) {
 					for each (var propertyInfo:PropertyInfo in propertiesInfos) {
-						ComponentUtil.updateValueIfNotBindable(propertyInfo);
+						ComponentUtil.getPropertyValue(propertyInfo);
 					}
 				}
 			}
@@ -311,10 +311,11 @@
 						toolTip="Refresh all not-bindable properties"
 						buttonMode="true" click="btnRefreshPropertiesInfosClickHandler()"/>
 				</mx:HBox>
-				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}">
+				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}"
+					alternatingItemColors="#ffffff" horizontalGridLines="true" horizontalGridLineColor="#cccccc">
 					<mx:columns>
-						<mx:DataGridColumn headerText="Property Name" dataField="name"/>
-						<mx:DataGridColumn headerText="Property Value" dataField="value" sortable="false"
+						<mx:DataGridColumn headerText="Name" dataField="name"/>
+						<mx:DataGridColumn headerText="Value" dataField="value" sortable="false"
 							itemRenderer="{new ClassFactory(ValueEditor)}">
 						</mx:DataGridColumn>
 					</mx:columns>
