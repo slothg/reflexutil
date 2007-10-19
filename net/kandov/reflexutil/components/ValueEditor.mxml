@@ -197,9 +197,7 @@
 		</mx:State>
 	</mx:states>
 	
-	<!-- TODO: finde a better way to differentiate the styles (currently - backgroundColor) -->
-	<mx:HBox id="boxEditor" width="100%" minHeight="22" verticalAlign="middle" horizontalGap="2"
-		backgroundColor="{propertyInfo.isStyle ? 16777113 : 16777215}">
+	<mx:HBox id="boxEditor" width="100%" minHeight="22" verticalAlign="middle" horizontalGap="2">
 		<mx:Canvas id="canvasValueHolder" width="100%" enabled="{propertyInfo.access != 'readonly'}"/>
 		<mx:Image id="imgBindable" source="{Images.BINDABLE}" toolTip="Bindable (refreshes automatically)"
 			visible="{propertyInfo.bindable}" includeInLayout="{propertyInfo.bindable}"/>

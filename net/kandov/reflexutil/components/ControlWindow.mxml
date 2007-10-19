@@ -35,6 +35,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import net.kandov.reflexutil.types.PropertyTypes;
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.collections.SortField;
@@ -217,10 +218,18 @@
 			}
 			
 			private function filterPropertiesInfos(item:Object):Boolean {
-				var propertyName:String = PropertyInfo(item).name.toLowerCase();
-				var filterString:String = txtPropertiesFilter.text.toLowerCase();
+				var propertyInfo:PropertyInfo = PropertyInfo(item);
 				
-				var filters:Array = filterString.split("|");
+				var filterType:int = int(cmbPropertiesFilterType.selectedItem.data);
+				var propertyIsStyle:Boolean = propertyInfo.isStyle;
+				if ((filterType == PropertyTypes.PROPERTY && propertyIsStyle) ||
+					(filterType == PropertyTypes.STYLE && !propertyIsStyle)) {
+					return false;
+				}
+				
+				var filterName:String = txtPropertiesFilterName.text.toLowerCase();
+				var propertyName:String = propertyInfo.name.toLowerCase();
+				var filters:Array = filterName.split("|");
 				var match:Boolean = false;
 				for each (var filter:String in filters) {
 					if (propertyName.indexOf(filter) != -1) {
@@ -303,12 +312,22 @@
 				keyDown="treeComponentsInfosKeyDownHandler(event)"
 				mouseMove="treeComponentsInfosMouseMoveHandler(event)"/>
 			<mx:VBox width="100%" height="70%">
-				<mx:HBox width="100%" horizontalGap="2">
-					<mx:Label text="Filter:"/>
-					<mx:TextInput id="txtPropertiesFilter" width="100%"
-						change="propertiesInfos.refresh()"/>
+				<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle">
+					<mx:Label text="Type:"/>
+					<mx:ComboBox id="cmbPropertiesFilterType" width="100" change="propertiesInfos.refresh()">
+						<mx:dataProvider>
+							<mx:Array>
+								<mx:Object label="All" data="{PropertyTypes.ALL}"/>
+								<mx:Object label="Properties" data="{PropertyTypes.PROPERTY}"/>
+								<mx:Object label="Styles" data="{PropertyTypes.STYLE}"/>
+							</mx:Array>
+						</mx:dataProvider>
+					</mx:ComboBox>
+					<mx:Spacer width="10"/>
+					<mx:Label text="Name:"/>
+					<mx:TextInput id="txtPropertiesFilterName" width="100%" change="propertiesInfos.refresh()"/>
 					<mx:Image id="btnRefreshPropertiesInfos" source="{Images.REFRESH}"
-						toolTip="Refresh all not-bindable properties"
+						toolTip="Refresh all not bindable properties"
 						buttonMode="true" click="btnRefreshPropertiesInfosClickHandler()"/>
 				</mx:HBox>
 				<mx:DataGrid id="dgPropertiesInfos" width="100%" height="100%" dataProvider="{propertiesInfos}"
