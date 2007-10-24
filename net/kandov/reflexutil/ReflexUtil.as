@@ -22,9 +22,11 @@
 
 package net.kandov.reflexutil {
 	
+	import flash.display.DisplayObjectContainer;
 	import flash.events.ContextMenuEvent;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
+	import flash.ui.ContextMenu;
 	import flash.ui.ContextMenuItem;
 	import flash.utils.Dictionary;
 	
@@ -41,6 +43,7 @@ package net.kandov.reflexutil {
 	implements IMXMLObject {
 		
 		private var _id:String;
+		private var stage:DisplayObjectContainer;
 		private var application:Application;
 		private var window:ControlWindow;
 		private var contextMenuItems:Dictionary;
@@ -123,11 +126,16 @@ package net.kandov.reflexutil {
 		private function applicationCompleteHandler(event:FlexEvent):void {
 			application.removeEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
 			application.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
-				applicationContextMenuSelectHandler, false, 0, true);
+				contextMenuSelectHandler, false, 0, true);
+			
+			stage = DisplayObjectContainer(application.systemManager);
+			stage.contextMenu = new ContextMenu();
+			stage.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
+				contextMenuSelectHandler, false, 0, true);
 		}
 		
-		private function applicationContextMenuSelectHandler(event:ContextMenuEvent):void {
-			var customItems:Array = application.contextMenu.customItems;
+		private function contextMenuSelectHandler(event:ContextMenuEvent):void {
+			var customItems:Array = event.contextMenuOwner.contextMenu.customItems;
 			
 			var menuItemIndex:int;
 			for (var key:Object in contextMenuItems) {
@@ -154,7 +162,7 @@ package net.kandov.reflexutil {
 				customItems.push(menuItem);
 			}
 			
-			var components:Array = ComponentUtil.getComponentsUnderMouse(application);
+			var components:Array = ComponentUtil.getComponentsUnderMouse(stage);
 			for each (var component:UIComponent in components) {
 				menuItem = new ContextMenuItem("Inspect [" + ComponentUtil.getUID(component) + "]");
 				menuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
