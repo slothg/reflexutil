@@ -56,6 +56,12 @@
 				return PropertyInfo(data);
 			}
 			
+			private function getFormattedColor(color:uint):String {
+				return "R:" + ((color >> 16) & 0xFF).toString() + "; " +
+					"G:" + ((color >> 8) & 0xFF).toString() + "; " +
+					"B:" + (color & 0xFF).toString();
+			}
+			
 			//--------------------------------------------------------------------------
 			// handlers
 			//--------------------------------------------------------------------------
@@ -135,7 +141,7 @@
 		</mx:State>
 		<mx:State name="Boolean">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:HBox horizontalGap="2">
+				<mx:HBox horizontalGap="2" verticalAlign="middle">
 					<mx:CheckBox id="chkBooleanValue" selected="{propertyInfo.value}"
 						click="value = chkBooleanValue.selected"/>
 					<mx:Label text="{propertyInfo.value}"/>
@@ -144,7 +150,7 @@
 		</mx:State>
 		<mx:State name="Number">
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:HBox width="100%" horizontalGap="0">
+				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 					<mx:NumericStepper id="stpNumberValue" width="100%" value="{Number(propertyInfo.value)}"
 						minimum="-2147483648" maximum="2147483648"
 						change="value = stpNumberValue.value"/>
@@ -189,16 +195,21 @@
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="Color">
-			<!-- TODO: open a color picker dialog -->
 			<mx:AddChild relativeTo="{canvasValueHolder}" position="firstChild">
-				<mx:TextInput id="txtColorValue" width="100%" text="{propertyInfo.value}"
-					change="value = txtColorValue.text"/>
+				<mx:HBox horizontalGap="2" verticalAlign="middle">
+					<mx:ColorPicker id="pckColorValue" width="18" height="18"
+						selectedColor="{uint(propertyInfo.value)}"
+						change="value = pckColorValue.selectedColor"/>
+					<mx:Label width="{canvasValueHolder.width - 20}"
+						text="{getFormattedColor(pckColorValue.selectedColor)}"/>
+				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
 	</mx:states>
 	
 	<mx:HBox id="boxEditor" width="100%" minHeight="22" verticalAlign="middle" horizontalGap="2">
-		<mx:Canvas id="canvasValueHolder" width="100%" enabled="{propertyInfo.access != 'readonly'}"/>
+		<mx:Canvas id="canvasValueHolder" width="100%" enabled="{propertyInfo.access != 'readonly'}"
+			horizontalScrollPolicy="off"/>
 		<mx:Image id="imgBindable" source="{Images.BINDABLE}" toolTip="Bindable (refreshes automatically)"
 			visible="{propertyInfo.bindable}" includeInLayout="{propertyInfo.bindable}"/>
 		<mx:Image id="imgRefresh" source="{Images.REFRESH_SMALL}" toolTip="Refresh"
