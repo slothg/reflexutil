@@ -24,15 +24,13 @@ package net.kandov.reflexutil.utils {
 	
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
-	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.utils.describeType;
+	import flash.utils.getDefinitionByName;
 	
 	import mx.binding.utils.BindingUtils;
-	import mx.core.UIComponent;
 	import mx.core.mx_internal;
-	import mx.styles.StyleManager;
-	import mx.utils.ObjectUtil;
+	import mx.core.UIComponent;
 	
 	import net.kandov.reflexutil.components.ComponentHover;
 	import net.kandov.reflexutil.types.ComponentInfo;
@@ -179,6 +177,15 @@ package net.kandov.reflexutil.utils {
 			//get styles
 			
 			var styles:XMLList = type.metadata.(attribute("name") == "Style");
+			for each (var extendsClass:XML in type.extendsClass) {
+				var extendsClassType:XML = describeType(new (getDefinitionByName(extendsClass.@type)));
+				styles += extendsClassType.metadata.(attribute("name") == "Style");
+				
+				if (extendsClass.@type == "mx.core::UIComponent") {
+					break;
+				}
+			}
+			
 			var style:XML;
 			var uniqueStyles:XMLList = new XMLList();
 			for each (style in styles) {
@@ -211,8 +218,6 @@ package net.kandov.reflexutil.utils {
 					propertiesInfos.push(propertyInfo);
 				}
 			}
-			
-			//get layout constraints
 			
 			propertiesInfos.push(new PropertyInfo(component, "top", "Number", true));
 			propertiesInfos.push(new PropertyInfo(component, "bottom", "Number", true));
