@@ -40,7 +40,6 @@ package net.kandov.reflexutil.utils {
 	
 	public class ComponentUtil {
 		
-		//TODO: examine all format types
 		public static const CUSTOM_FORMAT_TYPES:Array = ["Color"];
 		
 		//--------------------------------------------------------------------------
@@ -214,7 +213,7 @@ package net.kandov.reflexutil.utils {
 			}
 			
 			//get layout constraints
-			//TODO: investigate it...
+			
 			propertiesInfos.push(new PropertyInfo(component, "top", "Number", true));
 			propertiesInfos.push(new PropertyInfo(component, "bottom", "Number", true));
 			propertiesInfos.push(new PropertyInfo(component, "left", "Number", true));
