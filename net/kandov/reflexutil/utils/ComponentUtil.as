@@ -178,8 +178,12 @@ package net.kandov.reflexutil.utils {
 			
 			var styles:XMLList = type.metadata.(attribute("name") == "Style");
 			for each (var extendsClass:XML in type.extendsClass) {
-				var extendsClassType:XML = describeType(new (getDefinitionByName(extendsClass.@type)));
-				styles += extendsClassType.metadata.(attribute("name") == "Style");
+				try {
+					var extendsClassType:XML = describeType(new (getDefinitionByName(extendsClass.@type)));
+					styles += extendsClassType.metadata.(attribute("name") == "Style");
+				} catch (error:Error) {
+					//cannot instantiate this type of class
+				}
 				
 				if (extendsClass.@type == "mx.core::UIComponent") {
 					break;
