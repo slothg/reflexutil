@@ -25,7 +25,7 @@
 
 <window:SizeableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:window="com.adobe.ColdFusion.components.*"
-	showCloseButton="true" close="hide()" title="ReflexUtil"
+	showCloseButton="true" close="hide()" title="{'ReflexUtil (Version ' + ReflexUtil.VERSION + ')'}"
 	creationComplete="creationCompleteHandler()">
 	
 	<mx:Metadata>
@@ -46,6 +46,7 @@
 			import mx.managers.SystemManager;
 			
 			import net.kandov.reflexutil.assets.Images;
+			import net.kandov.reflexutil.ReflexUtil;
 			import net.kandov.reflexutil.utils.ComponentUtil;
 			import net.kandov.reflexutil.types.ComponentInfo;
 			import net.kandov.reflexutil.types.PropertyInfo;
