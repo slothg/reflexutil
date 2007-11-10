@@ -24,6 +24,7 @@
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	clipContent="false" horizontalScrollPolicy="off"
 	dataChange="dataChangeHandler()">
 	
 	<mx:Script>
