@@ -42,7 +42,7 @@ package net.kandov.reflexutil {
 	public class ReflexUtil
 	implements IMXMLObject {
 		
-		public static const VERSION:String = "1.0.0.52";
+		public static const VERSION:String = "1.0.0.54";
 		
 		private var _id:String;
 		private var stage:DisplayObjectContainer;
@@ -73,6 +73,15 @@ package net.kandov.reflexutil {
 		
 		public function initialized(document:Object, id:String):void {
 			_id = id;
+			
+			//TODO: replace with current method when compiling the ReflexModule, fix it to be generic
+			/* application.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
+				contextMenuSelectHandler, false, 0, true);
+			
+			stage = DisplayObjectContainer(application.systemManager);
+			stage.contextMenu = new ContextMenu();
+			stage.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
+				contextMenuSelectHandler, false, 0, true); */
 		}
 		
 		public function get x():int {
