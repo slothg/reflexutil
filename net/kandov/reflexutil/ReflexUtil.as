@@ -74,6 +74,9 @@ package net.kandov.reflexutil {
 		public function initialized(document:Object, id:String):void {
 			_id = id;
 			
+			//TODO: add allowDomain to support loading the ReflexModule directly from the repository
+			//TODO: add multi-version support for ReflexModule
+			
 			//TODO: replace with current method when compiling the ReflexModule, fix it to be generic
 			/* application.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
 				contextMenuSelectHandler, false, 0, true);
