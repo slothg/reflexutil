@@ -24,7 +24,20 @@
 -->
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:reflexutil="net.kandov.reflexutil.*">
+	xmlns:reflexutil="net.kandov.reflexutil.*"
+	initialize="preinitializeHandler()">
+	
+	<mx:Script>
+		<![CDATA[
+			//--------------------------------------------------------------------------
+			// handlers
+			//--------------------------------------------------------------------------
+			
+			private function preinitializeHandler():void {
+				Security.allowDomain("*");
+			}
+		]]>
+	</mx:Script>
 	
 	<reflexutil:ReflexUtil/>
 	
