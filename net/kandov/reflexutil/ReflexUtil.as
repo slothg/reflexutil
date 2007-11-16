@@ -42,7 +42,7 @@ package net.kandov.reflexutil {
 	public class ReflexUtil
 	implements IMXMLObject {
 		
-		public static const VERSION:String = "1.0.0.54";
+		public static const VERSION:String = "1.1.60";
 		
 		private var _id:String;
 		private var stage:DisplayObjectContainer;
@@ -60,8 +60,6 @@ package net.kandov.reflexutil {
 			_id = UIDUtil.createUID();
 			
 			application = Application(Application.application);
-			application.addEventListener(FlexEvent.APPLICATION_COMPLETE,
-				applicationCompleteHandler, false, 0, true);
 			
 			window = new ControlWindow();
 			window.application = application;
@@ -74,17 +72,12 @@ package net.kandov.reflexutil {
 		public function initialized(document:Object, id:String):void {
 			_id = id;
 			
-			//TODO: add allowDomain to support loading the ReflexModule directly from the repository
-			//TODO: add multi-version support for ReflexModule
-			
-			//TODO: replace with current method when compiling the ReflexModule, fix it to be generic
-			/* application.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
-				contextMenuSelectHandler, false, 0, true);
-			
-			stage = DisplayObjectContainer(application.systemManager);
-			stage.contextMenu = new ContextMenu();
-			stage.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
-				contextMenuSelectHandler, false, 0, true); */
+			if (application.contextMenu) {
+				addContextMenuListeners();
+			} else {
+				application.addEventListener(FlexEvent.APPLICATION_COMPLETE,
+					applicationCompleteHandler, false, 0, true);
+			}
 		}
 		
 		public function get x():int {
@@ -134,11 +127,10 @@ package net.kandov.reflexutil {
 		}
 		
 		//--------------------------------------------------------------------------
-		// handlers
+		// private
 		//--------------------------------------------------------------------------
 		
-		private function applicationCompleteHandler(event:FlexEvent):void {
-			application.removeEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
+		private function addContextMenuListeners():void {
 			application.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
 				contextMenuSelectHandler, false, 0, true);
 			
@@ -146,6 +138,15 @@ package net.kandov.reflexutil {
 			stage.contextMenu = new ContextMenu();
 			stage.contextMenu.addEventListener(ContextMenuEvent.MENU_SELECT,
 				contextMenuSelectHandler, false, 0, true);
+		}
+		
+		//--------------------------------------------------------------------------
+		// handlers
+		//--------------------------------------------------------------------------
+		
+		private function applicationCompleteHandler(event:FlexEvent):void {
+			application.removeEventListener(FlexEvent.APPLICATION_COMPLETE, applicationCompleteHandler);
+			addContextMenuListeners();
 		}
 		
 		private function contextMenuSelectHandler(event:ContextMenuEvent):void {
