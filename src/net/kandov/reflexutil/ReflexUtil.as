@@ -42,7 +42,7 @@ package net.kandov.reflexutil {
 	public class ReflexUtil
 	implements IMXMLObject {
 		
-		public static const VERSION:String = "1.1.60";
+		include "Version.as"; 
 		
 		private var _id:String;
 		private var stage:DisplayObjectContainer;
