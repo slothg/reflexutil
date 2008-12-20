@@ -72,6 +72,11 @@ package net.kandov.reflexutil {
 		public function initialized(document:Object, id:String):void {
 			_id = id;
 			
+			load();
+		}
+		
+		public function load():void
+		{
 			if (application.contextMenu) {
 				addContextMenuListeners();
 			} else {
